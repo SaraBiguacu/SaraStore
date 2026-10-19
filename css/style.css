@@ -198,6 +198,8 @@ a { color: inherit; }
 .corpo .selo, .corpo .botao { justify-self: start; }
 .corpo .preco { font-size: 26px; }
 .corpo .info { color: var(--texto-2); }
+/* Descrição sem limite (ex.: texto da contracapa do livro): as quebras de linha digitadas no painel viram parágrafos. */
+.corpo .descricao { white-space: pre-line; overflow-wrap: break-word; }
 .variacoes { width: 100%; border-collapse: collapse; }
 .variacoes th, .variacoes td { padding: 8px 0; border-bottom: 1px solid var(--creme); }
 .variacoes th { font-weight: 400; text-align: left; }

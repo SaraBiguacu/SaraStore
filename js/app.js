@@ -429,7 +429,7 @@ function preencherDetalhe(p) {
     el('h2', { id: 'detalhe-nome', text: texto(p.nome) }),
     ehNovidade(p) && el('p', { class: 'selo', text: 'Novidade' }),
     temVariacoes(p) ? tabelaDePrecos(p) : el('p', { class: 'preco', text: formatarPreco(p.precoCentavos) }),
-    texto(p.descricao) && el('p', { text: texto(p.descricao) }),
+    texto(p.descricao) && el('p', { class: 'descricao', text: texto(p.descricao) }),
     texto(p.info) && el('p', { class: 'info', text: texto(p.info) }),
     el('p', { class: 'so-balcao', text: 'Venda somente no balcão da loja da igreja' }),
     compartilhar,
