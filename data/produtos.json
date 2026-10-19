@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-18T21:36:00-03:00",
+  "atualizadoEm": "2026-10-19T19:15:15-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -25,17 +25,6 @@
   ],
   "produtos": [
     {
-      "id": "camiseta-jesus-mv1kiu80",
-      "categoria": "camisetas",
-      "nome": "Camiseta Jesus",
-      "descricao": "Camiseta com mensagem cristã, leve e confortável, ideal para uso no dia a dia com estilo e testemunho.",
-      "precoCentavos": 7450,
-      "imagem": "img/produtos/camiseta-jesus-mv1kiu80-unsplash.webp",
-      "miniatura": "img/produtos/camiseta-jesus-mv1kiu80-unsplash-mini.webp",
-      "visivel": true,
-      "ordem": 10
-    },
-    {
       "id": "camiseta-fe-e-graca-mv1kiu81",
       "categoria": "camisetas",
       "nome": "Camiseta Fé e Graça",
@@ -45,39 +34,6 @@
       "miniatura": "img/produtos/camiseta-fe-e-graca-mv1kiu81-ilustracao-mini.webp",
       "visivel": true,
       "ordem": 20
-    },
-    {
-      "id": "camiseta-louvor-mv1kiu82",
-      "categoria": "camisetas",
-      "nome": "Camiseta Louvor",
-      "descricao": "Peça com visual moderno e tema de louvor, perfeita para quem ama adoração, música e expressão de fé.",
-      "precoCentavos": 7990,
-      "imagem": "img/produtos/camiseta-louvor-mv1kiu82-unsplash.webp",
-      "miniatura": "img/produtos/camiseta-louvor-mv1kiu82-unsplash-mini.webp",
-      "visivel": true,
-      "ordem": 30
-    },
-    {
-      "id": "camiseta-crista-feminina-mv1kiu83",
-      "categoria": "camisetas",
-      "nome": "Camiseta Cristã Feminina",
-      "descricao": "Camiseta com design delicado e mensagem cristã feminina, mantendo conforto, beleza e identidade de fé.",
-      "precoCentavos": 8200,
-      "imagem": "img/produtos/camiseta-crista-feminina-mv1kiu83-unsplash.webp",
-      "miniatura": "img/produtos/camiseta-crista-feminina-mv1kiu83-unsplash-mini.webp",
-      "visivel": true,
-      "ordem": 40
-    },
-    {
-      "id": "camiseta-missionaria-mv1kiu84",
-      "categoria": "camisetas",
-      "nome": "Camiseta Missionária",
-      "descricao": "Camiseta com proposta missionária, ideal para quem deseja anunciar o evangelho com estilo e propósito.",
-      "precoCentavos": 7650,
-      "imagem": "img/produtos/camiseta-missionaria-mv1kiu84-unsplash.webp",
-      "miniatura": "img/produtos/camiseta-missionaria-mv1kiu84-unsplash-mini.webp",
-      "visivel": true,
-      "ordem": 50
     },
     {
       "id": "camiseta-semeando-esperanca-mv1kiu85",
@@ -102,50 +58,6 @@
       "ordem": 70
     },
     {
-      "id": "livro-de-devocional-mv1kiu87",
-      "categoria": "livros",
-      "nome": "Livro de Devocional",
-      "descricao": "Livro com textos diários para fortalecer a fé, a oração e a leitura espiritual ao longo da semana.",
-      "precoCentavos": 5490,
-      "imagem": "img/produtos/livro-de-devocional-mv1kiu87-unsplash.webp",
-      "miniatura": "img/produtos/livro-de-devocional-mv1kiu87-unsplash-mini.webp",
-      "visivel": true,
-      "ordem": 10
-    },
-    {
-      "id": "livro-de-historias-biblicas-mv1kiu88",
-      "categoria": "livros",
-      "nome": "Livro de Histórias Bíblicas",
-      "descricao": "Livro educativo com histórias da Bíblia em linguagem simples, ideal para crianças e famílias.",
-      "precoCentavos": 4850,
-      "imagem": "img/produtos/livro-de-historias-biblicas-mv1kiu88-unsplash.webp",
-      "miniatura": "img/produtos/livro-de-historias-biblicas-mv1kiu88-unsplash-mini.webp",
-      "visivel": true,
-      "ordem": 20
-    },
-    {
-      "id": "livro-de-reflexao-crista-mv1kiu89",
-      "categoria": "livros",
-      "nome": "Livro de Reflexão Cristã",
-      "descricao": "Material com reflexões profundas sobre fé, propósito e vida cristã para leitura pessoal e estudo em grupo.",
-      "precoCentavos": 6200,
-      "imagem": "img/produtos/livro-de-reflexao-crista-mv1kiu89-unsplash.webp",
-      "miniatura": "img/produtos/livro-de-reflexao-crista-mv1kiu89-unsplash-mini.webp",
-      "visivel": true,
-      "ordem": 30
-    },
-    {
-      "id": "biblia-de-estudo-mv1kiu8a",
-      "categoria": "biblias",
-      "nome": "Bíblia de Estudo",
-      "descricao": "Bíblia com auxílio de estudo, ideal para quem deseja aprofundar a leitura com explicações, referências e reflexão sobre os textos bíblicos.",
-      "precoCentavos": 8990,
-      "imagem": "img/produtos/biblia-de-estudo-mv1kiu8a-unsplash.webp",
-      "miniatura": "img/produtos/biblia-de-estudo-mv1kiu8a-unsplash-mini.webp",
-      "visivel": true,
-      "ordem": 10
-    },
-    {
       "id": "biblia-premium-mv1kiu8b",
       "categoria": "biblias",
       "nome": "Bíblia Premium",
@@ -155,17 +67,6 @@
       "miniatura": "img/produtos/biblia-premium-mv1kiu8b-unsplash-mini.webp",
       "visivel": true,
       "ordem": 20
-    },
-    {
-      "id": "biblia-infantil-mv1kiu8c",
-      "categoria": "biblias",
-      "nome": "Bíblia Infantil",
-      "descricao": "Bíblia adaptada para crianças, com linguagem simples, histórias bíblicas e ilustrações que tornam a leitura mais acessível.",
-      "precoCentavos": 5990,
-      "imagem": "img/produtos/biblia-infantil-mv1kiu8c-ilustracao.webp",
-      "miniatura": "img/produtos/biblia-infantil-mv1kiu8c-ilustracao-mini.webp",
-      "visivel": true,
-      "ordem": 30
     },
     {
       "id": "biblia-compacta-mv1kiu8d",
@@ -250,8 +151,8 @@
       "nome": "Minha Primeira Bíblia",
       "descricao": "Esta pequena BÍBLIA traz histórias contadas por meio de ILUSTRAÇÕES que substituem algumas palavras. Um presente ideal para os pequenos aprenderem sobre o AMOR DE DEUS!",
       "precoCentavos": 1500,
-      "imagem": "",
-      "miniatura": "",
+      "imagem": "img/produtos/minha-primeira-biblia-mved4xmd-mvftbtob.webp",
+      "miniatura": "img/produtos/minha-primeira-biblia-mved4xmd-mvftbtob-mini.webp",
       "visivel": true,
       "ordem": 40
     },
@@ -259,10 +160,10 @@
       "id": "inteligencia-espiritual-como-ser-feliz-no-trabalho-na-familia-e-nos-relacionamentos-mvedami4",
       "categoria": "livros",
       "nome": "Inteligência Espiritual - Como ser feliz no trabalho, na família e nos relacionamentos",
-      "descricao": "Neste livro veremos como a Inteligência espiritual vem se tornando mais relevante a cada dia, tomando mais espaço entre executivos e gestores de grandes organizações. A cada dia vemos mais pessoas questionando seus propósitos e querendo contribuir para um mundo melhor, em vez de serem levadas pelo fluxo da ganância e lucratividade a qualquer custo. \n\n​Esse despertar é um legado da igreja do Senhor, da evangelização e dos princípios cristãos.",
+      "descricao": "Neste livro veremos como a Inteligência espiritual vem se tornando mais relevante a cada dia, tomando mais espaço entre executivos e gestores de grandes organizações. A cada dia vemos mais pessoas questionando seus propósitos e querendo contribuir para um mundo melhor, em vez de serem levadas pelo fluxo da ganância e lucratividade a qualquer custo.  \n​Esse despertar é um legado da igreja do Senhor, da evangelização e dos princípios cristãos. As empresas estão pensando em primeiro lugar em seus colaboradores em vez de lucro, em seus clientes e no meio ambiente. Tudo isso vem sendo descoberto a partir da Inteligência Espiritual e da busca pela real felicidade.",
       "precoCentavos": 1500,
-      "imagem": "",
-      "miniatura": "",
+      "imagem": "img/produtos/inteligencia-espiritual-como-ser-feliz-no-trabalho-na-familia-e-nos-relacionamentos-mvedami4-mvftbvhq.webp",
+      "miniatura": "img/produtos/inteligencia-espiritual-como-ser-feliz-no-trabalho-na-familia-e-nos-relacionamentos-mvedami4-mvftbvhq-mini.webp",
       "visivel": true,
       "ordem": 50
     },
