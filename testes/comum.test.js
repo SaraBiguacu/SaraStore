@@ -525,7 +525,7 @@ describe('validarCatalogo', () => {
   test('o data/produtos.json do repositório está válido', () => {
     const dados = JSON.parse(readFileSync(new URL('../data/produtos.json', import.meta.url), 'utf8'));
     assert.deepEqual(validarCatalogo(dados), []);
-    assert.equal(dados.produtos.length, 20);
+    assert.ok(dados.produtos.length >= 20); // o painel acrescenta produtos com o tempo
   });
 
   const casos = [

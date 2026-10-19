@@ -500,7 +500,7 @@ export function validarCatalogo(dados, { permitirPendentes = false } = {}) {
 }
 
 /* ---------- Armazenamento local (sempre com try/catch e prefixo) ---------- */
-// Nunca usar localStorage.clear(): o endereço leonardo681.github.io é compartilhado com outros sites.
+// Nunca usar localStorage.clear(): o endereço sarabiguacu.github.io é compartilhado com outros sites.
 
 function armazenamento(sessao) {
   try {

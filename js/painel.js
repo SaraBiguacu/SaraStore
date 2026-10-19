@@ -282,7 +282,7 @@ async function conectarChave(evento) {
     status.textContent = '';
     let mensagem = erro instanceof ErroGitHub ? erro.message : 'Não foi possível conferir a chave. Tente de novo.';
     if (erro instanceof ErroGitHub && (erro.tipo === 'sem-permissao' || erro.tipo === 'nao-encontrado')) {
-      mensagem += ' Confira se a chave foi criada na conta leonardo681, só para o PRACIMA, com Contents: Read and write.';
+      mensagem += ' Confira se a chave foi criada na conta SaraBiguacu, só para o SaraStore, com Contents: Read and write.';
     }
     definirErro(campo, $('chave-erro'), mensagem);
     campo.focus();
@@ -2122,7 +2122,7 @@ function mostrarErroPublicacao(erro) {
     corpo.push(el('p', { text: 'A chave foi apagada deste aparelho. Crie outra no GitHub e cole no painel.' }));
     botoes.push(botao('Conectar outra chave', { classe: 'botao', aoClicar: () => mostrarTelaChave('Chave do GitHub inválida ou expirada.') }));
   } else if (tipo === 'sem-permissao') {
-    corpo.push(el('p', { text: 'Confira se a chave foi criada na conta leonardo681, só para o PRACIMA, com Contents: Read and write.' }));
+    corpo.push(el('p', { text: 'Confira se a chave foi criada na conta SaraBiguacu, só para o SaraStore, com Contents: Read and write.' }));
     botoes.push(botao('Trocar a chave', { classe: 'botao', aoClicar: () => { esquecerToken(); mostrarTelaChave(); } }));
   } else if (tipo === 'conflito') {
     botoes.push(botao('Recarregar e tentar de novo', {
@@ -2263,7 +2263,7 @@ function blocoArquivo({ titulo, nome, caminho, conteudo }) {
       botao(`Baixar ${nome}`, { classe: 'botao', aoClicar: () => baixarArquivo(nome, conteudo, bloco) }),
       copiar),
     el('ol', { class: 'passos' },
-      el('li', {}, 'Entre no GitHub com a conta leonardo681.'),
+      el('li', {}, 'Entre no GitHub com a conta SaraBiguacu.'),
       el('li', {}, 'Abra ',
         el('a', { href: urlEditar, target: '_blank', rel: 'noopener noreferrer', class: 'link-forte', text: `${caminho} para editar` }),
         ` (ou: github.com → ${REPO} → ${caminho.split('/').join(' → ')} → lápis).`),

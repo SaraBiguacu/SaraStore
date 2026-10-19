@@ -12,17 +12,17 @@ import {
   validarCatalogo,
 } from './comum.js?v=2';
 
-export const OWNER = 'leonardo681';
-export const REPO = 'PRACIMA';
+export const OWNER = 'SaraBiguacu';
+export const REPO = 'SaraStore';
 export const BRANCH = 'main';
 export const API = 'https://api.github.com';
 export const API_VERSION = '2026-03-10';
 export const CAMINHO_PRODUTOS = 'data/produtos.json';
 export const CAMINHO_IGREJA = 'data/igreja.json';
-export const URL_SITE = 'https://leonardo681.github.io/PRACIMA/';
-export const URL_CRIAR_CHAVE = 'https://github.com/settings/personal-access-tokens/new?name=Painel%20Sara%20Store&description=Catalogo%20PRACIMA&target_name=leonardo681&expires_in=366&contents=write';
+export const URL_SITE = 'https://sarabiguacu.github.io/SaraStore/';
+export const URL_CRIAR_CHAVE = 'https://github.com/settings/personal-access-tokens/new?name=Painel%20Sara%20Store&description=Catalogo%20SaraStore&target_name=SaraBiguacu&expires_in=366&contents=write';
 export const URL_CHAVES = 'https://github.com/settings/personal-access-tokens';
-export const URL_ACTIONS = 'https://github.com/leonardo681/PRACIMA/actions';
+export const URL_ACTIONS = 'https://github.com/SaraBiguacu/SaraStore/actions';
 
 const REPO_API = `/repos/${OWNER}/${REPO}`;
 const TENTATIVAS_PUBLICAR = 3;
@@ -33,7 +33,7 @@ const MODO_ARQUIVO = '100644';
 const MENSAGENS = {
   rede: 'Sem conexão ou GitHub instável.',
   chaveInvalida: 'Chave do GitHub inválida ou expirada.',
-  semPermissao: 'Esta chave não tem permissão de escrita no repositório PRACIMA (Contents: Read and write).',
+  semPermissao: 'Esta chave não tem permissão de escrita no repositório SaraStore (Contents: Read and write).',
   apiDesativada: 'A versão da API do GitHub usada pelo painel foi desativada. Atualize API_VERSION em js/github.js.',
   conflito: 'Outra pessoa alterou o catálogo agora. Recarregue e tente de novo.',
   respostaEstranha: 'O GitHub devolveu uma resposta inesperada. Tente de novo em instantes.',

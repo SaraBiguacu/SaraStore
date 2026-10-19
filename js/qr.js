@@ -1,7 +1,7 @@
 // Página de impressão do QR Code (qr.html).
 // A biblioteca qrcode-generator (cdnjs, versão fixa) carrega antes deste módulo e cria o global "qrcode".
 
-const URL_SITE = 'https://leonardo681.github.io/PRACIMA/';
+const URL_SITE = 'https://sarabiguacu.github.io/SaraStore/';
 const PAGINAS = {
   a5: '@page { size: A5 portrait; margin: 0; }',
   mesa: '@page { size: A4 portrait; margin: 0; }',

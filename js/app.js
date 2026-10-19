@@ -8,7 +8,7 @@ import {
 } from './comum.js?v=2';
 import { FECHADO, prepararDialogo } from './dialogo.js?v=1';
 
-const URL_SITE = 'https://leonardo681.github.io/PRACIMA/';
+const URL_SITE = 'https://sarabiguacu.github.io/SaraStore/';
 const AVISO_SUMIU = 'Este produto não está mais no catálogo';
 
 const $ = (id) => document.getElementById(id);

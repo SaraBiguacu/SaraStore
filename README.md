@@ -3,7 +3,7 @@
 Catálogo de preços da loja da **Igreja Sara Nossa Terra Biguaçu**, no estilo cardápio digital.
 É só informativo: as vendas são presenciais, no balcão da loja.
 
-Site: <https://leonardo681.github.io/PRACIMA/>
+Site: <https://sarabiguacu.github.io/SaraStore/>
 
 O acesso ao painel é passado pessoalmente pelo responsável da loja.
 
@@ -56,14 +56,14 @@ testes/               testes automáticos
 ```
 
 Extras:
-- **Modo balcão:** `https://leonardo681.github.io/PRACIMA/?balcao=1`. Mostra a busca já focada, sem fotos e com preços maiores, para os atendentes.
+- **Modo balcão:** `https://sarabiguacu.github.io/SaraStore/?balcao=1`. Mostra a busca já focada, sem fotos e com preços maiores, para os atendentes.
 - **QR Code:** abra `qr.html`, escolha o modelo e imprima em tamanho real (100%).
 
 ## Publicação no GitHub Pages
 
 Em **Settings → Pages**, escolha **Deploy from a branch**, branch `main` e pasta `/ (root)`.
 
-O endereço diferencia maiúsculas: `/PRACIMA/` funciona e `/pracima/` dá erro. Defina o endereço final antes de imprimir QR Codes.
+O endereço diferencia maiúsculas: `/SaraStore/` funciona e `/sarastore/` dá erro. Defina o endereço final antes de imprimir QR Codes.
 
 ## Testar no computador
 

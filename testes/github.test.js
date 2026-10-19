@@ -339,8 +339,8 @@ function conferirBlobs(github, foto, uuid) {
 
 describe('constantes e cabeçalhos', () => {
   test('constantes do contrato', () => {
-    assert.equal(OWNER, 'leonardo681');
-    assert.equal(REPO, 'PRACIMA');
+    assert.equal(OWNER, 'SaraBiguacu');
+    assert.equal(REPO, 'SaraStore');
     assert.equal(BRANCH, 'main');
     assert.equal(API, 'https://api.github.com');
     assert.equal(API_VERSION, '2026-03-10');
@@ -406,7 +406,7 @@ describe('validarChave e usuario', () => {
       const { cliente } = montar(github);
       await assert.rejects(
         cliente.validarChave(),
-        erroDoTipo('sem-permissao', 'Esta chave não tem permissão de escrita no repositório PRACIMA (Contents: Read and write).'),
+        erroDoTipo('sem-permissao', 'Esta chave não tem permissão de escrita no repositório SaraStore (Contents: Read and write).'),
       );
     });
   }
@@ -414,7 +414,7 @@ describe('validarChave e usuario', () => {
   test('usuario() devolve o login de GET /user', async () => {
     const github = criarGitHubFalso();
     const { cliente } = montar(github);
-    assert.equal(await cliente.usuario(), 'leonardo681');
+    assert.equal(await cliente.usuario(), 'SaraBiguacu');
     assert.deepEqual(github.chamadas.map((c) => `${c.metodo} ${c.caminho}`), ['GET /user']);
   });
 });
@@ -1069,7 +1069,7 @@ describe('publicar: erros (o rascunho nunca é tocado)', () => {
       const { cliente } = montar(github);
       await assert.rejects(
         cliente.publicar({ ops: [opPreco()] }),
-        erroDoTipo('sem-permissao', 'Esta chave não tem permissão de escrita no repositório PRACIMA (Contents: Read and write).'),
+        erroDoTipo('sem-permissao', 'Esta chave não tem permissão de escrita no repositório SaraStore (Contents: Read and write).'),
       );
     }
   });
