@@ -4,6 +4,7 @@
 export const PREFIXO = 'saraStore:';
 export const PREFIXO_PENDENTE = 'pendente:';
 export const PRECO_MAXIMO = 10000000; // R$ 100.000,00
+export const MAX_FOTOS = 6; // capa + 5 fotos extras (ex.: frente e verso do livro)
 
 /* ---------- Texto ---------- */
 
@@ -223,6 +224,7 @@ export function normalizarCatalogo(dados) {
   ).map((p) => ({
     ...p,
     variacoes: temVariacoes(p) ? p.variacoes.filter((v) => v && typeof v.nome === 'string' && precoValido(v.precoCentavos)) : [],
+    fotosExtras: Array.isArray(p.fotosExtras) ? p.fotosExtras.filter((f) => ehObjetoSimples(f) && imagemPermitida(f.imagem)) : [],
   }));
   return { ...dados, categorias, produtos };
 }
@@ -234,6 +236,48 @@ export function imagemPermitida(caminho) {
 
 export function ehPendente(valor) {
   return typeof valor === 'string' && valor.startsWith(PREFIXO_PENDENTE);
+}
+
+/* ---------- Fotos do produto ---------- */
+// A capa fica em "imagem"/"miniatura" (é a que aparece na lista). As outras fotos, na ordem,
+// ficam em "fotosExtras": [{ imagem, miniatura }, …]. Sem fotos extras, o campo não existe.
+
+const textoOuVazio = (valor) => (typeof valor === 'string' ? valor : '');
+const ehObjetoSimples = (valor) => valor !== null && typeof valor === 'object' && !Array.isArray(valor);
+
+// Capa e fotos extras andam juntas: se uma mudou, as três vão na operação "alterar". Assim, quando
+// o rascunho é reaplicado sobre uma versão mais nova (outro aparelho mexeu nas fotos), vale o
+// conjunto de um lado só, e não uma mistura que repete ou ressuscita fotos.
+export const CAMPOS_FOTOS = ['imagem', 'miniatura', 'fotosExtras'];
+
+// Todas as fotos do produto, capa primeiro: [{ imagem, miniatura }]. Não valida os caminhos
+// (podem ser "pendente:…" ou até inválidos); só pula entradas vazias, fora do formato ou repetidas.
+// Sem capa, sem fotos: o painel sempre põe a primeira foto na capa, então foto extra sem capa só
+// sobra de um painel antigo (o "Remover foto" de antes não conhecia as extras).
+export function fotosDoProduto(produto) {
+  const fotos = [];
+  const vistas = new Set();
+  const juntar = (origem) => {
+    if (!ehObjetoSimples(origem)) return;
+    const foto = { imagem: textoOuVazio(origem.imagem), miniatura: textoOuVazio(origem.miniatura) };
+    const chave = foto.imagem || foto.miniatura;
+    if (!chave || vistas.has(chave)) return;
+    vistas.add(chave);
+    fotos.push(foto);
+  };
+  juntar(produto);
+  if (fotos.length && Array.isArray(produto.fotosExtras)) produto.fotosExtras.forEach(juntar);
+  return fotos;
+}
+
+// Caminho de cada foto e miniatura guardada no produto, inclusive das que fotosDoProduto pula:
+// serve para nunca reaproveitar um nome de arquivo e para achar toda foto pendente.
+export function caminhosDasFotos(produto) {
+  const extras = Array.isArray(produto?.fotosExtras) ? produto.fotosExtras : [];
+  return [produto, ...extras]
+    .filter(ehObjetoSimples)
+    .flatMap((f) => [textoOuVazio(f.imagem), textoOuVazio(f.miniatura)])
+    .filter(Boolean);
 }
 
 /* ---------- Rascunho do painel (ops) ---------- */
@@ -326,6 +370,10 @@ export function compactarOps(ops, novaOp, base) {
       const valorOriginal = original ? original[chave] : undefined;
       if (!iguais(valor, valorOriginal)) limpos[chave] = clonar(valor);
     }
+    // Fotos: se uma mudou, ficam todas as que vieram (ver CAMPOS_FOTOS).
+    if (novaOp.tipo === 'produto' && CAMPOS_FOTOS.some((campo) => campo in limpos)) {
+      for (const campo of CAMPOS_FOTOS) if (campos && campo in campos) limpos[campo] = clonar(campos[campo]);
+    }
     return limpos;
   };
 
@@ -375,10 +423,14 @@ export function compactarOps(ops, novaOp, base) {
 // Chaves de fotos pendentes ainda usadas pelo rascunho (o resto pode ser apagado do IndexedDB).
 export function fotosPendentesUsadas(ops) {
   const chaves = new Set();
-  const olhar = (obj) => {
+  const olharFoto = (obj) => {
     for (const campo of ['imagem', 'miniatura']) {
       if (ehPendente(obj?.[campo])) chaves.add(obj[campo].slice(PREFIXO_PENDENTE.length));
     }
+  };
+  const olhar = (obj) => {
+    olharFoto(obj);
+    if (Array.isArray(obj?.fotosExtras)) obj.fotosExtras.forEach(olharFoto);
   };
   for (const op of ops) {
     if (op.tipo !== 'produto') continue;
@@ -426,6 +478,20 @@ export function validarCatalogo(dados, { permitirPendentes = false } = {}) {
         if (!permitirPendentes) erros.push(`${quem}: a foto ainda não foi enviada.`);
       } else if (!imagemPermitida(valor)) {
         erros.push(`${quem}: caminho de foto inválido.`);
+      }
+    }
+    if (p?.fotosExtras !== undefined) {
+      if (!Array.isArray(p.fotosExtras)) erros.push(`${quem}: fotos extras em formato inválido.`);
+      else {
+        if (p.fotosExtras.length > MAX_FOTOS - 1) erros.push(`${quem}: tem mais de ${MAX_FOTOS} fotos.`);
+        p.fotosExtras.forEach((f, n) => {
+          const qual = `${quem}: a foto ${n + 2}`; // a foto 1 é a capa
+          const valores = [f?.imagem, f?.miniatura];
+          if (!ehObjetoSimples(f) || valores.some((v) => typeof v !== 'string' || !v)) erros.push(`${qual} está incompleta.`);
+          else if (valores.some(ehPendente)) {
+            if (!permitirPendentes) erros.push(`${qual} ainda não foi enviada.`);
+          } else if (!valores.every(imagemPermitida)) erros.push(`${qual} tem caminho inválido.`);
+        });
       }
     }
     if (p?.novidadeAte !== undefined && !dataValida(p.novidadeAte)) erros.push(`${quem}: data de novidade inválida.`);

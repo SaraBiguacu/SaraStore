@@ -7,13 +7,13 @@ import {
   ehNovidade, agoraISOLocal, formatarDiaMes, formatarDataHoraBR, ordenarCategorias, ordenarProdutos,
   proximaOrdemProduto, proximaOrdemCategoria, imagemPermitida, ehPendente, aplicarAlteracoes,
   compactarOps, fotosPendentesUsadas, validarCatalogo, lerArmazenado, gravarArmazenado,
-  removerArmazenado, iconeDaCategoria,
-} from './comum.js?v=1';
+  removerArmazenado, iconeDaCategoria, MAX_FOTOS, CAMPOS_FOTOS, fotosDoProduto, caminhosDasFotos,
+} from './comum.js?v=2';
 import {
   OWNER, REPO, BRANCH, CAMINHO_PRODUTOS, CAMINHO_IGREJA, URL_CRIAR_CHAVE, URL_CHAVES, URL_ACTIONS,
   ErroGitHub, criarClienteGitHub, aguardarNoAr,
-} from './github.js?v=1';
-import { comprimirFoto, salvarFoto, lerFoto, apagarFoto, listarFotos, blobParaBase64 } from './fotos.js?v=1';
+} from './github.js?v=2';
+import { comprimirFoto, salvarFoto, lerFoto, apagarFoto, listarFotos, blobParaBase64 } from './fotos.js?v=2';
 import { FECHADO, prepararDialogo } from './dialogo.js?v=1';
 
 const HASH_ACESSO = '72e17a03b4ebd509d124d943d79910ef280d4b0f24dc7ff4ba845bacfe0816bc';
@@ -26,7 +26,7 @@ const ABAS = ['produtos', 'categorias', 'informacoes', 'ajuda'];
 
 const ROTULOS_CAMPOS = {
   nome: 'nome', categoria: 'categoria', precoCentavos: 'preço', descricao: 'descrição',
-  info: 'informação curta', variacoes: 'variações', imagem: 'foto', miniatura: 'foto',
+  info: 'informação curta', variacoes: 'variações', imagem: 'foto', miniatura: 'foto', fotosExtras: 'foto',
   visivel: 'visibilidade', novidadeAte: 'novidade', ordem: 'ordem',
 };
 
@@ -594,10 +594,13 @@ function textoPreco(produto) {
 }
 
 // Miniatura: foto publicada, foto pendente (IndexedDB) ou o ícone da categoria.
+// Usa a capa; se ela não servir, a próxima foto que servir.
 function miniatura(produto) {
   const caixa = el('span', { class: 'mini', 'aria-hidden': 'true' });
   const mostrarIcone = () => caixa.replaceChildren(icone(iconeDaCategoria(produto.categoria), 28));
-  const caminho = [produto.miniatura, produto.imagem].find((v) => ehPendente(v) || imagemPermitida(v));
+  const caminho = fotosDoProduto(produto)
+    .flatMap((f) => [f.miniatura, f.imagem])
+    .find((v) => ehPendente(v) || imagemPermitida(v));
   if (!caminho) {
     mostrarIcone();
     return caixa;
@@ -864,6 +867,7 @@ function duplicarProduto(produto) {
   const nome = `${produto.nome} (cópia)`;
   const id = novoIdProduto(nome);
   const dados = { ...clonar(produto), id, nome, imagem: '', miniatura: '' };
+  delete dados.fotosExtras; // a cópia não leva nenhuma foto
   dados.ordem = proximaOrdemProduto(estado.vista.dados.produtos, produto.categoria);
   registrarOp({ tipo: 'produto', acao: 'criar', id, dados, rotulo: nome });
   mostrarRecado(`Cópia criada: “${nome}”.`);
@@ -920,10 +924,11 @@ function moverProduto(produto, direcao) {
 const form = {
   id: null,              // null = produto novo
   original: null,        // produto como estava ao abrir
-  fotoNova: null,        // { foto, miniatura, extensao, url }
-  removerFoto: false,
+  fotos: [],             // capa primeiro: { imagem, miniatura } já guardada, ou { nova: { foto, miniatura, extensao, url, … } }
+  fila: [],              // arquivos escolhidos que ainda vão ser preparados (o primeiro é o da vez)
+  foraDoLimite: 0,       // arquivos que não couberam no limite de fotos (avisa no fim da preparação)
   novidadeInicial: false,
-  vez: 0,                // invalida respostas antigas (foto sendo preparada, prévia)
+  vez: 0,                // muda ao abrir e ao fechar: invalida respostas antigas (foto sendo preparada, prévia)
   preparandoFoto: false,
   salvando: false,
   sujo: false,
@@ -984,8 +989,9 @@ function abrirFormProduto(id = null) {
   Object.assign(form, {
     id: produto ? produto.id : null,
     original: produto ? clonar(produto) : null,
-    fotoNova: null,
-    removerFoto: false,
+    fotos: produto ? fotosDoProduto(produto).filter(fotoAproveitavel) : [],
+    fila: [],
+    foraDoLimite: 0,
     vez: form.vez + 1,
     preparandoFoto: false,
     salvando: false,
@@ -1011,7 +1017,6 @@ function abrirFormProduto(id = null) {
   }
   definirErro(null, $('p-erro-geral'), '');
   configurarCampoFoto();
-  mostrarPrevia();
   $('produto-salvar').disabled = false;
 
   const dialogo = $('dialogo-produto');
@@ -1058,99 +1063,261 @@ function novidadeEscolhida() {
   return dataValida(ate) ? ate : undefined; // vencida fica como está
 }
 
+/* Fotos do formulário: a primeira é a capa (aparece na lista); as outras vão, na ordem, em "fotosExtras". */
+
+const cartoesFotos = new WeakMap(); // item de form.fotos → { li, nome, previa, selo, antes, depois, remover }
+// Ao redesenhar, o foco volta para o mesmo botão da mesma foto (ou o vizinho, se ele ficou desativado).
+const FOCO_FOTO = { antes: ['antes', 'depois', 'remover'], depois: ['depois', 'antes', 'remover'], remover: ['remover'] };
+
+// Foto que dá para mostrar e manter: publicada (img/produtos/…) ou pendente (IndexedDB).
+function fotoAproveitavel(foto) {
+  return [foto.imagem, foto.miniatura].some((v) => ehPendente(v) || imagemPermitida(v));
+}
+
+const temFotoNova = () => form.fotos.some((item) => item.nova);
+const iconeDoForm = (tamanho) => icone(iconeDaCategoria($('p-categoria').value || form.original?.categoria), tamanho);
+
 function configurarCampoFoto() {
-  const semChave = !estado.cliente;
-  $('p-foto').disabled = semChave;
-  $('p-foto-botao').classList.toggle('desativado', semChave);
   definirErro(null, $('p-foto-erro'), '');
+  const pendentes = form.fotos.filter((f) => ehPendente(f.imagem) || ehPendente(f.miniatura)).length;
   let info = '';
-  if (semChave) info = 'Para enviar fotos, conecte a chave do GitHub';
-  else if (ehPendente(form.original?.imagem)) info = 'Foto nova, ainda não publicada.';
+  if (pendentes === 1 && form.fotos.length === 1) info = 'Foto nova, ainda não publicada.';
+  else if (pendentes) info = `${plural(pendentes, 'foto nova, ainda não publicada', 'fotos novas, ainda não publicadas')}.`;
   $('p-foto-info').textContent = info;
+  renderFotos();
 }
 
-function fotoDoForm() {
-  if (form.fotoNova) return { url: form.fotoNova.url };
-  if (form.removerFoto || !form.original) return null;
-  const caminho = [form.original.imagem, form.original.miniatura].find((v) => ehPendente(v) || imagemPermitida(v));
-  return caminho ? { caminho } : null;
+// Sem fotos: o ícone da categoria escolhida no lugar da prévia.
+function mostrarSemFoto() {
+  $('p-foto-previa').replaceChildren(iconeDoForm(40), el('span', { class: 'vh', text: 'Sem foto' }));
 }
 
-function mostrarPrevia() {
-  const caixa = $('p-foto-previa');
-  const foto = fotoDoForm();
-  const semFoto = () => caixa.replaceChildren(
-    icone(iconeDaCategoria($('p-categoria').value || form.original?.categoria), 40),
-    el('span', { class: 'vh', text: 'Sem foto' }),
-  );
-  $('p-foto-remover').hidden = !foto;
-  $('p-foto-botao').textContent = foto ? 'Trocar foto' : 'Escolher foto';
-  if (!foto) {
-    semFoto();
-    return;
-  }
-  const img = el('img', { alt: 'Prévia da foto do produto', width: 120, height: 120 });
+// Prévia: foto publicada (caminho), pendente (IndexedDB) ou recém-preparada (object URL).
+function previaDaFoto(item) {
+  const caixa = el('span', { class: 'foto-cartao-previa' });
+  const img = el('img', { alt: '', width: 120, height: 120, decoding: 'async' }); // o nome da foto fica no cartão
+  const semFoto = () => caixa.replaceChildren(iconeDoForm(40));
   img.addEventListener('error', semFoto, { once: true });
-  if (foto.url) {
-    img.src = foto.url;
-    caixa.replaceChildren(img);
-  } else if (ehPendente(foto.caminho)) {
+  const caminho = item.nova ? item.nova.url : [item.imagem, item.miniatura].find((v) => ehPendente(v) || imagemPermitida(v));
+  if (ehPendente(caminho)) {
     semFoto();
     const vez = form.vez;
-    urlDaFoto(foto.caminho.slice(PREFIXO_PENDENTE.length)).then((url) => {
+    urlDaFoto(caminho.slice(PREFIXO_PENDENTE.length)).then((url) => {
       if (!url || vez !== form.vez) return;
       img.src = url;
       caixa.replaceChildren(img);
     });
+  } else if (caminho) {
+    img.src = caminho;
+    caixa.append(img);
   } else {
-    img.src = foto.caminho;
-    caixa.replaceChildren(img);
+    semFoto();
+  }
+  return caixa;
+}
+
+// Cartão de cada foto, criado uma vez e reaproveitado: mudar a ordem não recarrega a prévia.
+function cartaoFoto(item) {
+  let cartao = cartoesFotos.get(item);
+  if (cartao) return cartao;
+  const acao = (tipo, rotulo, classe, aoClicar) => el('button', {
+    type: 'button', class: classe, 'data-foto': tipo, text: rotulo, on: { click: aoClicar },
+  });
+  cartao = {
+    nome: el('span', { class: 'vh' }),
+    previa: previaDaFoto(item),
+    selo: el('span', { class: 'foto-selo', 'aria-hidden': 'true' }),
+    antes: acao('antes', '←', 'botao-secundario seta', () => moverFoto(item, -1)),
+    depois: acao('depois', '→', 'botao-secundario seta', () => moverFoto(item, 1)),
+    remover: acao('remover', 'Remover', 'botao-secundario perigo foto-remover', () => removerFoto(item)),
+  };
+  cartao.li = el('li', { class: 'foto-cartao' },
+    cartao.nome, cartao.previa, cartao.selo,
+    el('div', { class: 'foto-cartao-acoes' }, cartao.antes, cartao.depois, cartao.remover));
+  cartoesFotos.set(item, cartao);
+  return cartao;
+}
+
+// Número, selo "Capa" e setas conforme a posição atual da foto.
+function atualizarCartaoFoto(item, i, total) {
+  const cartao = cartaoFoto(item);
+  const n = i + 1;
+  const destino = (m) => `para a posição ${m}${m === 1 ? ' (capa)' : ''}`;
+  cartao.li.classList.toggle('capa', i === 0);
+  cartao.selo.textContent = i === 0 ? 'Capa' : `Foto ${n}`;
+  cartao.nome.textContent = `Foto ${n} de ${total}${i === 0 ? ' (capa)' : ''}`;
+  // Com uma foto só não há o que reordenar.
+  cartao.antes.hidden = total === 1;
+  cartao.depois.hidden = total === 1;
+  cartao.antes.disabled = i === 0;
+  cartao.depois.disabled = i === total - 1;
+  cartao.antes.setAttribute('aria-label', i === 0 ? `A foto 1 de ${total} já é a capa` : `Mover a foto ${n} de ${total} ${destino(n - 1)}`);
+  cartao.depois.setAttribute('aria-label', i === total - 1 ? `A foto ${n} de ${total} já é a última` : `Mover a foto ${n} de ${total} ${destino(n + 1)}`);
+  cartao.remover.setAttribute('aria-label', `Remover a foto ${n}`);
+  return cartao.li;
+}
+
+function renderFotos() {
+  const lista = $('p-fotos');
+  const total = form.fotos.length;
+  const ativo = document.activeElement;
+  const focada = lista.contains(ativo) ? form.fotos.find((item) => cartoesFotos.get(item)?.li.contains(ativo)) : null;
+  const cartoes = form.fotos.map((item, i) => atualizarCartaoFoto(item, i, total));
+  // Mexe só nos cartões fora do lugar: assim o foco não se perde quando chega uma foto nova.
+  for (const filho of [...lista.children]) if (!cartoes.includes(filho)) filho.remove();
+  cartoes.forEach((li, k) => {
+    if (lista.children[k] !== li) lista.insertBefore(li, lista.children[k] || null);
+  });
+  lista.hidden = !total;
+  $('p-foto-previa').hidden = total > 0;
+  if (!total) mostrarSemFoto();
+  atualizarBotaoFoto();
+  // O cartão com o foco mudou de lugar (ou o botão ficou desativado): devolve o foco.
+  if (focada && (document.activeElement !== ativo || ativo.disabled || ativo.hidden)) {
+    focarBotaoFoto(focada, FOCO_FOTO[ativo.dataset.foto] || FOCO_FOTO.remover);
   }
 }
 
-async function escolherFoto() {
+// Sem a chave não dá para enviar fotos, e cada produto tem no máximo MAX_FOTOS.
+// Remover e reordenar continuam valendo nos dois casos.
+function atualizarBotaoFoto() {
   const entrada = $('p-foto');
-  const arquivo = entrada.files?.[0];
-  entrada.value = ''; // deixa escolher o mesmo arquivo de novo
-  if (!arquivo || !estado.cliente) return;
-  const vez = ++form.vez;
+  const vagas = MAX_FOTOS - form.fotos.length - form.fila.length;
+  const semChave = !estado.cliente;
+  const desativar = semChave || vagas <= 0;
+  const tinhaFoco = document.activeElement === entrada;
+  entrada.disabled = desativar;
+  $('p-foto-botao').classList.toggle('desativado', desativar);
+  $('p-foto-botao').textContent = vagas === 1 ? 'Adicionar foto' : 'Adicionar fotos';
+  let aviso = '';
+  if (semChave) aviso = 'Para enviar fotos, conecte a chave do GitHub';
+  else if (vagas <= 0) aviso = `Limite de ${MAX_FOTOS} fotos por produto.`;
+  // Só troca quando muda, para o leitor de tela não repetir o aviso a cada redesenho.
+  if ($('p-foto-aviso').textContent !== aviso) $('p-foto-aviso').textContent = aviso;
+  // Chegou ao limite com o foco no botão: o foco vai para a última foto.
+  if (desativar && tinhaFoco) focarBotaoFoto(form.fotos[form.fotos.length - 1], FOCO_FOTO.antes);
+}
+
+function focarBotaoFoto(item, tipos) {
+  const cartao = item ? cartoesFotos.get(item) : null;
+  const alvo = cartao && tipos.map((tipo) => cartao[tipo]).find((b) => !b.disabled && !b.hidden);
+  if (alvo) alvo.focus();
+  else focarAdicionarFoto();
+}
+
+// Botão de adicionar; se ele estiver desativado, o próximo campo do formulário.
+function focarAdicionarFoto() {
+  ($('p-foto').disabled ? $('p-novidade') : $('p-foto')).focus();
+}
+
+const textoForaDoLimite = () => (form.foraDoLimite
+  ? `${plural(form.foraDoLimite, 'foto ficou', 'fotos ficaram')} de fora: o limite é de ${MAX_FOTOS} fotos por produto.`
+  : '');
+
+function textoFotosProntas(prontas) {
+  if (!prontas.length) return '';
+  if (prontas.length === 1) {
+    const [pronta] = prontas;
+    return `Foto pronta: ${tamanhoArquivo(pronta.bytesFoto)} (miniatura ${tamanhoArquivo(pronta.bytesMiniatura)}). Ela vai para o site quando você publicar.`;
+  }
+  const bytes = prontas.reduce((soma, p) => soma + p.bytesFoto + p.bytesMiniatura, 0);
+  return `${prontas.length} fotos prontas (${tamanhoArquivo(bytes)} ao todo). Elas vão para o site quando você publicar.`;
+}
+
+// Uma foto só: a mensagem como vem. Várias: com o nome de cada arquivo que deu problema.
+function textoErrosFotos(erros, varias) {
+  if (!varias && erros.length === 1) return erros[0].mensagem;
+  return erros.map((e) => `${e.nome || 'Foto'}: ${e.mensagem}`).join(' ');
+}
+
+// Os arquivos escolhidos (frente e verso podem vir juntos) entram na fila, até completar o limite.
+function escolherFotos() {
+  const entrada = $('p-foto');
+  const arquivos = Array.from(entrada.files || []);
+  entrada.value = ''; // deixa escolher os mesmos arquivos de novo
+  if (!arquivos.length || !estado.cliente || form.salvando) return;
+  const vagas = Math.max(0, MAX_FOTOS - form.fotos.length - form.fila.length);
+  const aceitos = arquivos.slice(0, vagas);
+  form.foraDoLimite += arquivos.length - aceitos.length;
+  if (!form.preparandoFoto) definirErro(null, $('p-foto-erro'), '');
+  form.fila.push(...aceitos);
+  atualizarBotaoFoto();
+  if (form.preparandoFoto) return; // a preparação em andamento pega os novos da fila
+  if (aceitos.length) {
+    prepararFotos(form.vez);
+  } else {
+    $('p-foto-info').textContent = textoForaDoLimite();
+    form.foraDoLimite = 0;
+  }
+}
+
+// Prepara a fila uma foto depois da outra; cada foto pronta entra no fim da lista.
+// Remover ou reordenar no meio não atrapalha; só fechar (ou abrir de novo) o formulário descarta.
+async function prepararFotos(vez) {
   form.preparandoFoto = true;
   $('produto-salvar').disabled = true;
-  definirErro(null, $('p-foto-erro'), '');
-  $('p-foto-info').textContent = 'Preparando a foto…';
+  const prontas = [];
+  const erros = [];
+  let feitas = 0;
   try {
-    const resultado = await comprimirFoto(arquivo);
-    if (vez !== form.vez || !$('dialogo-produto').open) return;
-    if (form.fotoNova) URL.revokeObjectURL(form.fotoNova.url);
-    form.fotoNova = { ...resultado, url: URL.createObjectURL(resultado.foto) };
-    form.removerFoto = false;
-    form.sujo = true;
-    mostrarPrevia();
-    $('p-foto-info').textContent = `Foto pronta: ${tamanhoArquivo(resultado.bytesFoto)} (miniatura ${tamanhoArquivo(resultado.bytesMiniatura)}). Ela vai para o site quando você publicar.`;
-  } catch (erro) {
-    if (vez !== form.vez) return;
-    $('p-foto-info').textContent = '';
-    definirErro(null, $('p-foto-erro'), erro?.message || 'Não foi possível preparar esta foto.');
+    while (form.fila.length) {
+      const arquivo = form.fila[0];
+      const total = feitas + form.fila.length;
+      $('p-foto-info').textContent = total > 1 ? `Preparando a foto ${feitas + 1} de ${total}…` : 'Preparando a foto…';
+      let resultado = null;
+      try {
+        resultado = await comprimirFoto(arquivo);
+      } catch (erro) {
+        erros.push({ nome: arquivo.name, mensagem: erro?.message || 'Não foi possível preparar esta foto.' });
+      }
+      if (vez !== form.vez || !$('dialogo-produto').open) return;
+      form.fila.shift();
+      feitas++;
+      if (resultado) {
+        form.fotos.push({ nova: { ...resultado, url: URL.createObjectURL(resultado.foto) } });
+        form.sujo = true;
+        prontas.push(resultado);
+      } else {
+        definirErro(null, $('p-foto-erro'), textoErrosFotos(erros, feitas + form.fila.length > 1));
+      }
+      renderFotos();
+    }
+    $('p-foto-info').textContent = [textoFotosProntas(prontas), textoForaDoLimite()].filter(Boolean).join(' ');
   } finally {
     if (vez === form.vez) {
       form.preparandoFoto = false;
+      form.foraDoLimite = 0;
       $('produto-salvar').disabled = form.salvando;
     }
   }
 }
 
-function removerFotoDoForm() {
-  if (form.fotoNova) URL.revokeObjectURL(form.fotoNova.url);
-  form.fotoNova = null;
-  form.removerFoto = true;
-  form.preparandoFoto = false;
+function moverFoto(item, direcao) {
+  const i = form.fotos.indexOf(item);
+  const j = i + direcao;
+  if (form.salvando || i === -1 || j < 0 || j >= form.fotos.length) return;
+  [form.fotos[i], form.fotos[j]] = [form.fotos[j], form.fotos[i]];
   form.sujo = true;
-  form.vez++;
-  $('produto-salvar').disabled = false;
-  definirErro(null, $('p-foto-erro'), '');
-  $('p-foto-info').textContent = estado.cliente ? 'O produto fica sem foto quando você salvar.' : 'Para enviar fotos, conecte a chave do GitHub';
-  mostrarPrevia();
-  ($('p-foto').disabled ? $('p-novidade') : $('p-foto')).focus();
+  renderFotos(); // o foco continua na mesma foto
+  if (i === 0) $('p-foto-info').textContent = `Capa movida para a posição ${j + 1}. A foto seguinte virou a capa.`;
+  else $('p-foto-info').textContent = j === 0 ? 'Foto movida para a posição 1 (capa).' : `Foto movida para a posição ${j + 1}.`;
+}
+
+function removerFoto(item) {
+  const i = form.fotos.indexOf(item);
+  if (form.salvando || i === -1) return;
+  form.fotos.splice(i, 1);
+  if (item.nova) URL.revokeObjectURL(item.nova.url);
+  form.sujo = true;
+  renderFotos();
+  // O foco vai para a foto que ficou no lugar (ou a anterior); sem fotos, para o botão de adicionar.
+  const vizinha = form.fotos[Math.min(i, form.fotos.length - 1)];
+  if (vizinha) focarBotaoFoto(vizinha, FOCO_FOTO.remover);
+  else focarAdicionarFoto();
+  let aviso = `Foto ${i + 1} removida.`;
+  if (!form.fotos.length) aviso = 'Foto removida. O produto fica sem foto quando você salvar.';
+  else if (i === 0) aviso = 'Capa removida. A foto seguinte virou a capa.';
+  $('p-foto-info').textContent = aviso;
 }
 
 // Formata como "74,50" só ao sair do campo (sem máscara enquanto digita).
@@ -1231,23 +1398,19 @@ function lerFormProduto() {
 
 // Monta os campos do produto. "undefined" = campo ausente (vira null no "alterar").
 // Campos vazios que o produto original nem tinha continuam ausentes (sem alteração à toa).
-function montarProduto(lido, chaveFoto) {
+// "fotos" é a lista final do formulário, capa primeiro, só com { imagem, miniatura }.
+function montarProduto(lido, fotos) {
   const original = form.original;
   const tinha = (campo) => Boolean(original) && Object.prototype.hasOwnProperty.call(original, campo);
   const vazioOuAusente = (campo) => (!original || tinha(campo) ? '' : undefined);
 
-  let imagem;
-  let miniatura;
-  if (chaveFoto) {
-    imagem = `${PREFIXO_PENDENTE}${chaveFoto}`;
-    miniatura = `${PREFIXO_PENDENTE}${chaveFoto}-mini`;
-  } else if (form.removerFoto) {
-    imagem = vazioOuAusente('imagem');
-    miniatura = vazioOuAusente('miniatura');
-  } else {
-    imagem = original ? original.imagem : '';
-    miniatura = original ? original.miniatura : '';
-  }
+  // A capa fica em imagem/miniatura; as outras, na ordem, em fotosExtras (ausente quando não há).
+  // A capa pode ter só uma das metades; se ela sair da capa, a outra metade é copiada,
+  // porque cada foto extra precisa das duas.
+  const [capa, ...extras] = fotos;
+  const fotosExtras = extras.length
+    ? extras.map((f) => ({ imagem: f.imagem || f.miniatura, miniatura: f.miniatura || f.imagem }))
+    : undefined;
 
   // Produto novo ou que mudou de categoria vai para o fim da categoria de destino.
   const outros = estado.vista.dados.produtos.filter((p) => p.id !== original?.id);
@@ -1260,16 +1423,17 @@ function montarProduto(lido, chaveFoto) {
     info: lido.info || undefined,
     precoCentavos: lido.precoCentavos,
     variacoes: lido.variacoes.length ? lido.variacoes : undefined,
-    imagem,
-    miniatura,
+    imagem: capa?.imagem || vazioOuAusente('imagem'),
+    miniatura: capa?.miniatura || vazioOuAusente('miniatura'),
+    fotosExtras,
     visivel: lido.visivel && original && !tinha('visivel') ? undefined : lido.visivel, // sem o campo = visível
     novidadeAte: lido.novidadeAte,
     ordem,
   };
 }
 
-function gravarProduto(lido, chaveFoto) {
-  const novo = montarProduto(lido, chaveFoto);
+function gravarProduto(lido, fotos) {
+  const novo = montarProduto(lido, fotos);
   if (!form.original) {
     const id = novoIdProduto(novo.nome);
     const dados = { id };
@@ -1285,6 +1449,10 @@ function gravarProduto(lido, chaveFoto) {
     } else if (!iguais(valor, antes)) {
       campos[campo] = valor;
     }
+  }
+  // Mexeu em alguma foto: capa e fotos extras vão juntas (ver CAMPOS_FOTOS em comum.js).
+  if (CAMPOS_FOTOS.some((campo) => campo in campos)) {
+    for (const campo of CAMPOS_FOTOS) campos[campo] = novo[campo] === undefined ? null : novo[campo];
   }
   if (!Object.keys(campos).length) return 'igual';
   registrarOp({ tipo: 'produto', acao: 'alterar', id: form.original.id, campos, rotulo: novo.nome });
@@ -1303,28 +1471,38 @@ async function salvarFormProduto(evento) {
 
   form.salvando = true;
   $('produto-salvar').disabled = true;
-  let chaveFoto = null;
+  // Cada foto nova vai para o IndexedDB com a própria chave e entra no produto como "pendente:<chave>".
+  // form.fotos não muda: se falhar no meio, as fotos continuam no formulário para tentar de novo
+  // (o que já foi gravado fica sem dono e a limpeza apaga).
+  const chaves = [];
   let resultado;
   try {
-    if (form.fotoNova) {
-      chaveFoto = `foto-${crypto.randomUUID()}`;
-      fotosReservadas.add(chaveFoto);
-      fotosReservadas.add(`${chaveFoto}-mini`);
-      await salvarFoto(chaveFoto, form.fotoNova.foto);
-      await salvarFoto(`${chaveFoto}-mini`, form.fotoNova.miniatura);
+    const fotos = [];
+    for (const item of form.fotos.slice()) {
+      if (!item.nova) {
+        fotos.push({ imagem: item.imagem, miniatura: item.miniatura });
+        continue;
+      }
+      const chave = `foto-${crypto.randomUUID()}`;
+      chaves.push(chave);
+      fotosReservadas.add(chave);
+      fotosReservadas.add(`${chave}-mini`);
+      await salvarFoto(chave, item.nova.foto);
+      await salvarFoto(`${chave}-mini`, item.nova.miniatura);
+      fotos.push({ imagem: `${PREFIXO_PENDENTE}${chave}`, miniatura: `${PREFIXO_PENDENTE}${chave}-mini` });
     }
-    resultado = gravarProduto(lido, chaveFoto);
+    resultado = gravarProduto(lido, fotos);
   } catch (erro) {
     definirErro(null, $('p-erro-geral'), erro?.message || 'Não foi possível salvar. Tente de novo.');
     form.salvando = false;
     $('produto-salvar').disabled = false;
     return;
   } finally {
-    if (chaveFoto) {
-      fotosReservadas.delete(chaveFoto);
-      fotosReservadas.delete(`${chaveFoto}-mini`);
-      agendarLimpezaFotos();
+    for (const chave of chaves) {
+      fotosReservadas.delete(chave);
+      fotosReservadas.delete(`${chave}-mini`);
     }
+    if (chaves.length) agendarLimpezaFotos();
   }
 
   ultimaCategoria = lido.categoria;
@@ -1338,7 +1516,7 @@ async function salvarFormProduto(evento) {
 
 async function pedirFecharForm() {
   if (form.salvando) return;
-  if (form.sujo || form.fotoNova) {
+  if (form.sujo || temFotoNova()) {
     const resposta = await abrirCaixa({
       titulo: 'Sair sem salvar?',
       textos: ['As mudanças deste produto serão perdidas.'],
@@ -1355,18 +1533,22 @@ async function pedirFecharForm() {
 function aoFecharForm() {
   if (form.fechadoPeloNavegador) {
     form.fechadoPeloNavegador = false;
-    if (form.sujo || form.fotoNova) {
+    if (form.sujo || temFotoNova()) {
       // O navegador fechou o formulário à força: reabre para não perder o que foi digitado.
       $('dialogo-produto').showModal();
       pedirFecharForm();
       return;
     }
   }
-  if (form.fotoNova) URL.revokeObjectURL(form.fotoNova.url);
-  form.fotoNova = null;
+  // As fotos salvas já estão no IndexedDB: as prévias das novas podem ser liberadas.
+  for (const item of form.fotos) if (item.nova) URL.revokeObjectURL(item.nova.url);
+  form.fotos = [];
+  form.fila = [];
+  form.foraDoLimite = 0;
   form.vez++;
   form.preparandoFoto = false;
   form.salvando = false;
+  $('p-fotos').replaceChildren();
   $('p-foto-previa').replaceChildren();
   if (!restaurarFoco(form.focoAoFechar)) $('novo-produto').focus();
 }
@@ -1701,8 +1883,8 @@ async function obterFoto(chave) {
 async function fotosQueFaltam(dados) {
   const pendentes = [];
   for (const p of dados.produtos) {
-    for (const campo of ['imagem', 'miniatura']) {
-      if (ehPendente(p[campo])) pendentes.push({ chave: p[campo].slice(PREFIXO_PENDENTE.length), nome: p.nome || p.id });
+    for (const caminho of caminhosDasFotos(p)) { // capa e fotos extras
+      if (ehPendente(caminho)) pendentes.push({ chave: caminho.slice(PREFIXO_PENDENTE.length), nome: p.nome || p.id });
     }
   }
   if (!pendentes.length) return [];
@@ -1799,7 +1981,7 @@ async function mostrarRevisao() {
   const { dados, avisos } = estado.vista;
   const erros = validarCatalogo(dados, { permitirPendentes: true });
   for (const nome of await fotosQueFaltam(dados)) {
-    erros.push(`Produto “${nome}”: a foto nova não está mais neste aparelho. Edite o produto e escolha a foto de novo.`);
+    erros.push(`Produto “${nome}”: uma foto nova não está mais neste aparelho. Edite o produto, remova a foto que aparece sem imagem e escolha de novo.`);
   }
   const atencao = [...avisos];
   if (formIgrejaSujo) atencao.push('Você mexeu na aba Informações e não salvou. Essas mudanças não vão nesta publicação.');
@@ -2016,17 +2198,23 @@ async function acompanharNoAr(atualizadoEm) {
 
 function prepararProdutosParaBaixar() {
   const { dados, avisos } = aplicarAlteracoes(estado.base, estado.ops);
-  // Fotos pendentes não vão no arquivo: volta para a foto publicada (ou nenhuma).
+  // Fotos pendentes não vão no arquivo. Se o produto tem alguma, todas as fotos dele voltam a ser
+  // as publicadas (ou nenhuma): misturar a ordem nova com fotos que faltam só confundiria.
   let fotosFora = 0;
   for (const p of dados.produtos) {
+    if (!caminhosDasFotos(p).some(ehPendente)) continue;
     const original = estado.base.produtos.find((b) => b.id === p.id);
-    let trocou = false;
     for (const campo of ['imagem', 'miniatura']) {
-      if (!ehPendente(p[campo])) continue;
       p[campo] = original && imagemPermitida(original[campo]) ? original[campo] : '';
-      trocou = true;
     }
-    if (trocou) fotosFora++;
+    const extras = original && Array.isArray(original.fotosExtras)
+      ? original.fotosExtras
+        .filter((f) => ehObjeto(f) && imagemPermitida(f.imagem) && imagemPermitida(f.miniatura))
+        .map((f) => ({ imagem: f.imagem, miniatura: f.miniatura }))
+      : [];
+    if (extras.length) p.fotosExtras = extras;
+    else delete p.fotosExtras;
+    fotosFora++;
   }
   dados.atualizadoEm = agoraISOLocal();
   return { dados, avisos, fotosFora, erros: validarCatalogo(dados), texto: `${JSON.stringify(dados, null, 2)}\n` };
@@ -2105,7 +2293,7 @@ function abrirBaixar() {
     corpo: [
       el('p', { text: 'O arquivo tem o catálogo inteiro, já com as alterações deste aparelho.' }),
       arquivo.fotosFora > 0 && caixaAviso({
-        textos: [`${plural(arquivo.fotosFora, 'produto tem', 'produtos têm')} foto nova que não vai no arquivo: fotos só podem ser enviadas com a chave do GitHub (botão Publicar).`],
+        textos: [`${plural(arquivo.fotosFora, 'produto tem', 'produtos têm')} foto nova. No arquivo, as fotos ${arquivo.fotosFora === 1 ? 'dele' : 'deles'} ficam como estão no site: fotos só podem ser enviadas com a chave do GitHub (botão Publicar).`],
       }),
       arquivo.avisos.length > 0 && caixaAviso({ titulo: 'Atenção', itens: arquivo.avisos }),
       blocoArquivo({ titulo: 'Catálogo de produtos', nome: 'produtos.json', caminho: CAMINHO_PRODUTOS, conteudo: arquivo.texto }),
@@ -2207,7 +2395,7 @@ function ligarEventos() {
   formProduto.addEventListener('focusout', (evento) => {
     if (evento.target.matches('#p-preco, .v-preco')) formatarCampoPreco(evento.target);
   });
-  $('p-categoria').addEventListener('change', () => { if (!fotoDoForm()) mostrarPrevia(); });
+  $('p-categoria').addEventListener('change', () => { if (!form.fotos.length) mostrarSemFoto(); });
   $('p-novidade').addEventListener('change', atualizarTextoNovidade);
   $('p-nova-variacao').addEventListener('click', () => {
     const linha = linhaVariacao();
@@ -2215,8 +2403,7 @@ function ligarEventos() {
     form.sujo = true;
     linha.querySelector('.v-nome').focus();
   });
-  $('p-foto').addEventListener('change', escolherFoto);
-  $('p-foto-remover').addEventListener('click', removerFotoDoForm);
+  $('p-foto').addEventListener('change', escolherFotos);
   $('produto-fechar').addEventListener('click', pedirFecharForm);
   $('produto-cancelar').addEventListener('click', pedirFecharForm);
   // Esc tratado no keydown: assim o navegador não gera o pedido de fechamento que,

@@ -31,10 +31,10 @@ async function abrirImagem(url) {
   return img;
 }
 
-function novoCanvas(lado) {
+function novoCanvas(largura, altura = largura) {
   const canvas = document.createElement('canvas');
-  canvas.width = lado;
-  canvas.height = lado;
+  canvas.width = largura;
+  canvas.height = altura;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error(ERRO_PROCESSAR);
   ctx.imageSmoothingEnabled = true;
@@ -48,34 +48,42 @@ function liberar(canvas) {
   canvas.height = 0;
 }
 
-// Recorte central 1:1, fundo branco, no máximo "ladoMaximo" px e nunca ampliando.
-// Reduz pela metade em etapas para a miniatura não ficar serrilhada.
-function desenharQuadrado(img, ladoMaximo) {
-  const ladoOrigem = Math.min(img.naturalWidth, img.naturalHeight);
-  const lado = Math.min(ladoMaximo, ladoOrigem);
+// Fundo branco, no máximo "ladoMaximo" px no lado maior e nunca ampliando.
+// "quadrado": recorte central 1:1 (miniatura da lista). Sem ele a foto vai inteira, na proporção
+// original: assim a capa de um livro (retangular, em pé) não perde o topo nem o rodapé.
+// Reduz pela metade em etapas para a imagem não ficar serrilhada.
+function desenhar(img, ladoMaximo, { quadrado = false } = {}) {
+  const ladoMenor = Math.min(img.naturalWidth, img.naturalHeight);
+  let larguraFonte = quadrado ? ladoMenor : img.naturalWidth;
+  let alturaFonte = quadrado ? ladoMenor : img.naturalHeight;
+  const escala = Math.min(1, ladoMaximo / Math.max(larguraFonte, alturaFonte));
+  const largura = Math.max(1, Math.round(larguraFonte * escala));
+  const altura = Math.max(1, Math.round(alturaFonte * escala));
 
   let fonte = img;
-  let x = (img.naturalWidth - ladoOrigem) / 2;
-  let y = (img.naturalHeight - ladoOrigem) / 2;
-  let ladoFonte = ladoOrigem;
+  let x = (img.naturalWidth - larguraFonte) / 2;
+  let y = (img.naturalHeight - alturaFonte) / 2;
   const intermediarios = [];
 
-  while (ladoFonte > lado * 2) {
+  while (Math.max(larguraFonte, alturaFonte) > Math.max(largura, altura) * 2) {
     // Teto de 4096px: o Safari do iPhone não desenha canvas muito grande (foto de câmera de 100+ MP).
-    const metade = Math.min(Math.ceil(ladoFonte / 2), LADO_MAXIMO_CANVAS);
-    const { canvas, ctx } = novoCanvas(metade);
-    ctx.drawImage(fonte, x, y, ladoFonte, ladoFonte, 0, 0, metade, metade);
+    const fator = Math.min(0.5, LADO_MAXIMO_CANVAS / Math.max(larguraFonte, alturaFonte));
+    const larguraMetade = Math.max(1, Math.ceil(larguraFonte * fator));
+    const alturaMetade = Math.max(1, Math.ceil(alturaFonte * fator));
+    const { canvas, ctx } = novoCanvas(larguraMetade, alturaMetade);
+    ctx.drawImage(fonte, x, y, larguraFonte, alturaFonte, 0, 0, larguraMetade, alturaMetade);
     intermediarios.push(canvas);
     fonte = canvas;
     x = 0;
     y = 0;
-    ladoFonte = metade;
+    larguraFonte = larguraMetade;
+    alturaFonte = alturaMetade;
   }
 
-  const { canvas, ctx } = novoCanvas(lado);
+  const { canvas, ctx } = novoCanvas(largura, altura);
   ctx.fillStyle = '#FFFFFF'; // PNG transparente fica com fundo branco
-  ctx.fillRect(0, 0, lado, lado);
-  ctx.drawImage(fonte, x, y, ladoFonte, ladoFonte, 0, 0, lado, lado);
+  ctx.fillRect(0, 0, largura, altura);
+  ctx.drawImage(fonte, x, y, larguraFonte, alturaFonte, 0, 0, largura, altura);
   intermediarios.forEach(liberar);
   return canvas;
 }
@@ -88,8 +96,8 @@ function canvasParaBlob(canvas, tipo, qualidade) {
 
 // Gera o arquivo no formato pedido. Quando o navegador não sabe gerar WebP
 // (o Safari do iPhone devolve PNG), o chamador refaz em JPEG.
-async function gerar(img, lado, formato, qualidade = formato.qualidade) {
-  const canvas = desenharQuadrado(img, lado);
+async function gerar(img, lado, formato, qualidade = formato.qualidade, { quadrado = false } = {}) {
+  const canvas = desenhar(img, lado, { quadrado });
   try {
     return await canvasParaBlob(canvas, formato.tipo, qualidade);
   } finally {
@@ -127,7 +135,8 @@ export async function comprimirFoto(arquivo) {
     if (foto.size > LIMITE_FOTO) foto = await gerar(img, LADO_FOTO, formato, QUALIDADE_MENOR);
     if (foto.size > LIMITE_FOTO) foto = await gerar(img, LADO_FOTO_REDUZIDA, formato, QUALIDADE_MENOR);
 
-    const miniatura = await gerar(img, LADO_MINIATURA, formato);
+    // Só a miniatura é quadrada: ela fica num quadrado na lista e nas miniaturas da galeria.
+    const miniatura = await gerar(img, LADO_MINIATURA, formato, formato.qualidade, { quadrado: true });
     if (miniatura.type !== formato.tipo) throw new Error(ERRO_PROCESSAR);
 
     return {
@@ -163,7 +172,9 @@ export function blobParaBase64(blob) {
 
 const BANCO = 'saraStore';
 const LOJA = 'fotos';
-const VERSAO_BANCO = 1;
+// 2: chegada das fotos extras. Um painel antigo ainda aberto em outra aba fecha a conexão e não
+// consegue abrir de novo; assim a limpeza dele, que não conhece "fotosExtras", não apaga as fotos novas.
+const VERSAO_BANCO = 2;
 const ERRO_BANCO = 'Este aparelho não deixou guardar a foto (memória do navegador indisponível ou cheia).';
 
 let promessaBanco = null;

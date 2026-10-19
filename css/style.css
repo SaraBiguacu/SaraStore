@@ -167,8 +167,32 @@ a { color: inherit; }
   background: rgb(250 248 243 / .94); color: var(--texto); box-shadow: 0 1px 4px rgb(17 17 17 / .25);
 }
 .foto { display: flex; justify-content: center; background: var(--fundo-foto); }
-/* Celular: foto de ponta a ponta, com altura limitada para o preço aparecer sem rolar. */
-.foto img { display: block; width: 100%; height: min(100vw, 44vh); height: min(100vw, 44dvh); object-fit: cover; }
+/* Celular: foto de ponta a ponta, com altura limitada para o preço aparecer sem rolar.
+   "contain" mostra inteira a foto de outro formato (capa de livro em pé, por exemplo);
+   a quadrada (todas as antigas e o ícone) continua cobrindo a caixa, como sempre. */
+.foto > img, .slide > img { display: block; width: 100%; height: min(100vw, 44vh); height: min(100vw, 44dvh); object-fit: contain; }
+.foto > img.quadrada, .slide > img.quadrada { object-fit: cover; }
+
+/* Galeria (produto com mais de uma foto): arrastar para o lado é a rolagem nativa, com scroll-snap. */
+.galeria { display: block; }
+.trilho-fotos {
+  display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain; /* passar da última foto não vira o "Voltar" do navegador */
+  scrollbar-width: none;
+}
+.trilho-fotos::-webkit-scrollbar, .miniaturas::-webkit-scrollbar { display: none; }
+.trilho-fotos:focus-visible { outline-offset: -3px; } /* por dentro: fora seria cortado pelo detalhe */
+.slide { flex: none; width: 100%; scroll-snap-align: start; scroll-snap-stop: always; }
+.miniaturas { position: relative; display: flex; gap: 8px; padding: 10px 16px; overflow-x: auto; scrollbar-width: none; }
+/* Centraliza sem esconder a primeira miniatura quando a tira precisa rolar. */
+.miniaturas > :first-child { margin-left: auto; }
+.miniaturas > :last-child { margin-right: auto; }
+.miniatura {
+  flex: none; width: 48px; height: 48px; padding: 0; overflow: hidden;
+  border: 2px solid var(--bronze-claro); border-radius: 10px; background: var(--fundo-foto);
+}
+.miniatura img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.miniatura[aria-current] { border-color: var(--bronze-escuro); box-shadow: 0 0 0 2px var(--bronze-escuro); }
 .corpo { display: grid; gap: 12px; padding: 16px 16px 24px; }
 .corpo h2 { padding-right: 48px; font-size: 22px; line-height: 1.25; }
 .corpo .selo, .corpo .botao { justify-self: start; }
@@ -227,7 +251,7 @@ a { color: inherit; }
   }
   .detalhe-in.com-foto { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .com-foto .foto { align-items: flex-start; }
-  .com-foto .foto img { width: 100%; height: auto; aspect-ratio: 1; }
+  .com-foto .foto > img, .com-foto .slide > img { width: 100%; height: auto; aspect-ratio: 1; }
   .corpo { align-content: start; padding: 24px; }
 }
 @media (min-width: 1100px) {
@@ -235,8 +259,8 @@ a { color: inherit; }
 }
 @media (hover: hover) {
   .produto:hover { border-color: var(--bronze-claro); }
-  .chip:hover { border-color: var(--bronze-escuro); }
-  .chips ul { scrollbar-width: thin; }
+  .chip:hover, .miniatura:hover { border-color: var(--bronze-escuro); }
+  .chips ul, .miniaturas { scrollbar-width: thin; }
 }
 
 /* ---------- Modo balcão (?balcao=1): sem fotos, preços maiores, lista compacta ---------- */

@@ -4,8 +4,8 @@
 import {
   normalizarCatalogo, ordenarCategorias, ordenarProdutos, normalizarBusca, formatarPreco,
   precoMinimo, temVariacoes, hojeLocal, ehNovidade, agoraISOLocal, formatarDataBR,
-  imagemPermitida, iconeDaCategoria, lerArmazenado, gravarArmazenado,
-} from './comum.js?v=1';
+  imagemPermitida, fotosDoProduto, iconeDaCategoria, lerArmazenado, gravarArmazenado,
+} from './comum.js?v=2';
 import { FECHADO, prepararDialogo } from './dialogo.js?v=1';
 
 const URL_SITE = 'https://leonardo681.github.io/PRACIMA/';
@@ -59,12 +59,13 @@ function el(tag, props, ...filhos) {
 }
 
 // Placeholder quando não há foto: ícone da categoria desenhado num SVG (vira <img>).
+// Largura e altura no SVG: sem elas há navegador que informa 300x150 e o ícone não passa por quadrado.
 const icones = {};
 function imagemDoIcone(categoriaId) {
   let d = iconeDaCategoria(categoriaId);
   if (typeof d !== 'string') d = iconeDaCategoria('outros'); // id "constructor" herdaria do Object
   icones[d] ||= 'data:image/svg+xml,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 48 48">' +
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 48 48" width="48" height="48">' +
     '<rect x="-12" y="-12" width="48" height="48" fill="#EFE9DD"/>' +
     `<path d="${d}" fill="none" stroke="#977037" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   );
@@ -90,11 +91,20 @@ function imagem(caminho, categoriaId, { classe, tamanho, alt = '', adiada }) {
 
 /* ---------- Lista estilo cardápio ---------- */
 
+// Na lista vai a miniatura da capa, como sempre. Se ela não serve (ex.: a capa só tem a foto
+// grande), vale a primeira foto que sirva; sem miniatura, a foto grande.
+function miniaturaDaLista(p) {
+  if (imagemPermitida(p.miniatura)) return p.miniatura;
+  const foto = fotosDoProduto(p).find((f) => imagemPermitida(f.miniatura) || imagemPermitida(f.imagem));
+  if (!foto) return p.miniatura; // nenhuma foto: imagem() desenha o ícone da categoria
+  return imagemPermitida(foto.miniatura) ? foto.miniatura : foto.imagem;
+}
+
 function linhaProduto(p, hoje) {
   // Dentro do botão só <img> e <span>.
   const botao = el('button', { type: 'button', class: 'produto', 'aria-haspopup': 'dialog' });
   if (!balcao) {
-    botao.append(imagem(p.miniatura, p.categoria, { classe: 'mini', tamanho: 88, adiada: fotosNaLista >= 6 }));
+    botao.append(imagem(miniaturaDaLista(p), p.categoria, { classe: 'mini', tamanho: 88, adiada: fotosNaLista >= 6 }));
     fotosNaLista++;
   }
   botao.append(el('span', { class: 'txt' },
@@ -339,11 +349,79 @@ function tabelaDePrecos(p) {
       el('tr', {}, el('th', { scope: 'row', text: nome }), el('td', { text: formatarPreco(centavos) })))));
 }
 
+// Fotos que dá para mostrar, capa primeiro. No trilho vai a foto grande (sem ela, a miniatura);
+// na tira de miniaturas, o contrário.
+function fotosValidas(p) {
+  return fotosDoProduto(p)
+    .filter((f) => imagemPermitida(f.imagem) || imagemPermitida(f.miniatura))
+    .map((f) => ({
+      grande: imagemPermitida(f.imagem) ? f.imagem : f.miniatura,
+      pequena: imagemPermitida(f.miniatura) ? f.miniatura : f.imagem,
+    }));
+}
+
+// As fotos antigas são todas quadradas e sempre cobriram a caixa do detalhe de ponta a ponta.
+// A classe mantém isso; foto de outro formato (capa de livro em pé) fica com "contain" e aparece inteira.
+function marcarSeQuadrada(img) {
+  img.addEventListener('load', () => {
+    img.classList.toggle('quadrada', Math.abs(img.naturalWidth - img.naturalHeight) <= 2);
+  });
+  return img;
+}
+
+function fotoDoDetalhe(p) {
+  const fotos = fotosValidas(p);
+  if (fotos.length > 1) return galeria(p, fotos);
+  // Uma foto só, ou nenhuma (aí imagem() desenha o ícone da categoria).
+  return el('div', { class: 'foto' }, marcarSeQuadrada(imagem(fotos[0]?.grande, p.categoria,
+    { tamanho: 1000, alt: `Foto de ${texto(p.nome)}`, adiada: false })));
+}
+
+// Mais de uma foto (ex.: frente e verso do livro): as fotos ficam lado a lado num trilho com
+// scroll-snap, então arrastar para o lado é a rolagem nativa do navegador. Embaixo, uma miniatura
+// por foto. Trocar de foto nunca mexe no histórico: para o popstate, entrada sem "produto" é "fechar".
+function galeria(p, fotos) {
+  const nome = texto(p.nome);
+  const total = fotos.length;
+  const trilho = el('div', { class: 'trilho-fotos', role: 'group', 'aria-label': `Fotos de ${nome}`, tabindex: '0' },
+    ...fotos.map((foto, n) => el('div', { class: 'slide' }, marcarSeQuadrada(imagem(foto.grande, p.categoria, {
+      tamanho: 1000,
+      alt: n === 0 ? `Foto de ${nome}` : `${nome}, foto ${n + 1} de ${total}`,
+      adiada: n > 0, // as outras fotos só baixam quando a pessoa chega nelas
+    })))));
+
+  // A miniatura marcada segue a rolagem do trilho (abaixo), não o clique: assim fica certa
+  // também quando a pessoa arrasta a foto ou interrompe a rolagem no meio.
+  const botoes = fotos.map((foto, n) => {
+    const botao = el('button', { type: 'button', class: 'miniatura', 'aria-label': `Ver foto ${n + 1} de ${total}` },
+      imagem(foto.pequena, p.categoria, { tamanho: 48 }));
+    botao.addEventListener('click', () => trilho.scrollTo({ left: n * trilho.clientWidth, behavior: rolagem() }));
+    return botao;
+  });
+  const faixa = el('div', { class: 'miniaturas' }, ...botoes);
+
+  let atual = null;
+  const marcar = (botao) => {
+    if (!botao || botao === atual) return;
+    atual?.removeAttribute('aria-current');
+    atual = botao;
+    botao.setAttribute('aria-current', 'true');
+    // Tela estreita com muitas fotos: a tira rola e a miniatura marcada vem para o meio.
+    if (faixa.scrollWidth > faixa.clientWidth) {
+      faixa.scrollTo({ left: botao.offsetLeft - (faixa.clientWidth - botao.offsetWidth) / 2, behavior: rolagem() });
+    }
+  };
+  marcar(botoes[0]);
+  // Cada foto ocupa a largura do trilho, então a posição da rolagem diz qual está na tela.
+  trilho.addEventListener('scroll', () => {
+    if (trilho.clientWidth) marcar(botoes[Math.round(trilho.scrollLeft / trilho.clientWidth)]);
+  }, { passive: true });
+
+  return el('div', { class: 'foto galeria' }, trilho, faixa);
+}
+
 function preencherDetalhe(p) {
-  const foto = !balcao && el('div', { class: 'foto' }, imagem(
-    imagemPermitida(p.imagem) ? p.imagem : p.miniatura, p.categoria,
-    { tamanho: 1000, alt: `Foto de ${texto(p.nome)}`, adiada: false },
-  ));
+  const foto = !balcao && fotoDoDetalhe(p);
   const compartilhar = el('button', { type: 'button', class: 'botao secundario' }, 'Compartilhar');
   compartilhar.addEventListener('click', () => compartilharProduto(p, compartilhar));
 

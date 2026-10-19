@@ -10,12 +10,12 @@
   <meta name="theme-color" content="#6F5227">
   <title>Painel – SARA STORE</title>
   <link rel="icon" href="img/icone.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/painel.css?v=2">
-  <link rel="modulepreload" href="js/comum.js?v=1">
+  <link rel="stylesheet" href="css/painel.css?v=3">
+  <link rel="modulepreload" href="js/comum.js?v=2">
   <link rel="modulepreload" href="js/dialogo.js?v=1">
-  <link rel="modulepreload" href="js/github.js?v=1">
-  <link rel="modulepreload" href="js/fotos.js?v=1">
-  <script type="module" src="js/painel.js?v=1"></script>
+  <link rel="modulepreload" href="js/github.js?v=2">
+  <link rel="modulepreload" href="js/fotos.js?v=2">
+  <script type="module" src="js/painel.js?v=2"></script>
 </head>
 <body>
   <header class="topo">
@@ -183,7 +183,7 @@
             <li>Na aba <strong>Produtos</strong>, toque em <strong>+ Novo produto</strong>.</li>
             <li>Preencha o nome, a categoria e o preço. O preço pode ser digitado como 74 ou 74,50.</li>
             <li>Se quiser, escreva a descrição, uma informação curta (ex.: “Tamanhos P ao GG”) e as variações com preço próprio (ex.: Adulto e Infantil).</li>
-            <li>Para a foto, toque em <strong>Escolher foto</strong>: dá para tirar na hora ou pegar da galeria. O painel já diminui a foto sozinho.</li>
+            <li>Para as fotos, toque em <strong>Adicionar fotos</strong>: dá para tirar na hora ou pegar da galeria, e escolher várias de uma vez (ex.: frente e verso do livro). Cada produto pode ter até 6 fotos. A primeira é a <strong>capa</strong>, a que aparece na lista; as setas <strong>← →</strong> mudam a ordem. O painel já diminui as fotos sozinho.</li>
             <li>Marque <strong>Novidade</strong> para o produto ganhar o selo por 30 dias.</li>
             <li>Toque em <strong>Salvar</strong> e depois em <strong>Publicar</strong>.</li>
           </ol>
@@ -194,7 +194,7 @@
           <ul>
             <li><strong>Ocultar</strong> (chave Visível / Oculto): o produto some do site, mas continua guardado. Para voltar, é só deixar Visível de novo. Use quando acabar o estoque ou o produto sair por um tempo.</li>
             <li><strong>Excluir</strong>: apaga o produto de vez. Só use quando ele não vai mais voltar.</li>
-            <li><strong>Duplicar</strong>: cria uma cópia (sem foto) para cadastrar um produto parecido mais rápido.</li>
+            <li><strong>Duplicar</strong>: cria uma cópia (sem fotos) para cadastrar um produto parecido mais rápido.</li>
             <li>As setas <strong>↑ ↓</strong> mudam a ordem dos produtos dentro da categoria.</li>
           </ul>
         </div>
@@ -309,13 +309,15 @@
         </fieldset>
 
         <fieldset class="campo grupo">
-          <legend>Foto</legend>
+          <legend>Fotos</legend>
+          <p id="p-fotos-dica" class="dica">A primeira foto é a capa e aparece na lista. Ex.: frente e verso do livro.</p>
           <div class="foto-area">
             <div id="p-foto-previa" class="foto-previa"></div>
+            <ul id="p-fotos" class="fotos" hidden></ul>
             <div class="foto-acoes">
-              <input id="p-foto" class="vh arquivo" type="file" accept="image/*" aria-describedby="p-foto-info p-foto-erro">
-              <label id="p-foto-botao" for="p-foto" class="botao-secundario">Escolher foto</label>
-              <button id="p-foto-remover" class="botao-secundario" type="button" hidden>Remover foto</button>
+              <input id="p-foto" class="vh arquivo" type="file" accept="image/*" multiple aria-describedby="p-fotos-dica p-foto-aviso p-foto-info p-foto-erro">
+              <label id="p-foto-botao" for="p-foto" class="botao-secundario">Adicionar fotos</label>
+              <p id="p-foto-aviso" class="dica" aria-live="polite"></p>
               <p id="p-foto-info" class="dica" aria-live="polite"></p>
               <p id="p-foto-erro" class="erro" role="alert" hidden></p>
             </div>

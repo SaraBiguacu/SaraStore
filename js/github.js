@@ -7,9 +7,10 @@ import {
   agoraISOLocal,
   aplicarAlteracoes,
   base64ParaTexto,
+  caminhosDasFotos,
   ehPendente,
   validarCatalogo,
-} from './comum.js?v=1';
+} from './comum.js?v=2';
 
 export const OWNER = 'leonardo681';
 export const REPO = 'PRACIMA';
@@ -306,7 +307,8 @@ export function criarClienteGitHub({
     }
   }
 
-  async function lerFotoPendente(obterFoto, chaveFoto, produto) {
+  // "alvo" é o próprio produto (capa) ou um item de "fotosExtras"; diz qual foto escolher de novo.
+  async function lerFotoPendente(obterFoto, chaveFoto, produto, alvo) {
     let foto = null;
     let causa;
     try {
@@ -318,9 +320,11 @@ export function criarClienteGitHub({
     let base64 = typeof foto?.base64 === 'string' ? foto.base64 : '';
     if (base64.startsWith('data:')) base64 = base64.slice(base64.indexOf(',') + 1);
     if (!base64 || !extensao) {
+      // Mesma numeração do validarCatalogo: a foto 1 é a capa, as extras começam na 2.
+      const qual = alvo === produto ? 'A foto nova' : `A foto ${produto.fotosExtras.indexOf(alvo) + 2}`;
       throw new ErroGitHub(
         'validacao',
-        `A foto nova de "${produto.nome || produto.id}" não foi encontrada neste aparelho. Escolha a foto de novo e publique.`,
+        `${qual} de "${produto.nome || produto.id}" não foi encontrada neste aparelho. Escolha a foto de novo e publique.`,
         { detalhes: [`Foto pendente: ${chaveFoto}`], cause: causa },
       );
     }
@@ -332,19 +336,24 @@ export function criarClienteGitHub({
   async function enviarFotos(dados, base, obterFoto, avisar) {
     const usos = [];
     for (const produto of dados.produtos) {
-      for (const campo of ['imagem', 'miniatura']) {
-        if (ehPendente(produto?.[campo])) {
-          usos.push({ produto, campo, chave: produto[campo].slice(PREFIXO_PENDENTE.length) });
+      // A capa fica no próprio produto; as outras fotos, em cada item de "fotosExtras".
+      const alvos = [produto, ...(Array.isArray(produto?.fotosExtras) ? produto.fotosExtras : [])];
+      for (const alvo of alvos) {
+        for (const campo of ['imagem', 'miniatura']) {
+          if (ehPendente(alvo?.[campo])) {
+            usos.push({ produto, alvo, campo, chave: alvo[campo].slice(PREFIXO_PENDENTE.length) });
+          }
         }
       }
     }
     if (!usos.length) return [];
 
     // A foto e a miniatura do mesmo envio ficam juntas e dividem o carimbo.
+    // Cada foto extra tem a sua chave, então vira um grupo (e um carimbo) só dela.
     const grupos = new Map();
     for (const uso of usos) {
       const raiz = uso.chave.replace(/-mini$/, '');
-      if (!grupos.has(raiz)) grupos.set(raiz, { produto: uso.produto, chaves: [] });
+      if (!grupos.has(raiz)) grupos.set(raiz, { produto: uso.produto, alvo: uso.alvo, chaves: [] });
       const grupo = grupos.get(raiz);
       if (!grupo.chaves.includes(uso.chave)) grupo.chaves.push(uso.chave);
     }
@@ -356,10 +365,11 @@ export function criarClienteGitHub({
     }
 
     // Nunca reaproveitar um caminho existente: o CDN do GitHub ignora "?v=" e mostraria a foto antiga.
+    // Vale para a capa e para as fotos extras.
     const ocupados = new Set();
     for (const p of [...base.produtos, ...dados.produtos]) {
-      for (const valor of [p?.imagem, p?.miniatura]) {
-        if (typeof valor === 'string' && valor && !ehPendente(valor)) ocupados.add(valor);
+      for (const valor of caminhosDasFotos(p)) {
+        if (!ehPendente(valor)) ocupados.add(valor);
       }
     }
 
@@ -374,7 +384,7 @@ export function criarClienteGitHub({
       for (const chaveFoto of grupo.chaves) {
         let envio = fotosEnviadas.get(chaveFoto);
         if (!envio) {
-          const foto = await lerFotoPendente(obterFoto, chaveFoto, grupo.produto);
+          const foto = await lerFotoPendente(obterFoto, chaveFoto, grupo.produto, grupo.alvo);
           if (carimbo === null) carimbo = carimboLivre(grupo.produto.id, ocupados); // sem "??=": Safari antigo do iPhone
           const caminho = `img/produtos/${grupo.produto.id}-${carimbo}${ehMiniatura(chaveFoto) ? '-mini' : ''}.${foto.extensao}`;
           const blob = await requisitar('POST', `${REPO_API}/git/blobs`, {
@@ -388,7 +398,7 @@ export function criarClienteGitHub({
       }
     }
 
-    for (const uso of usos) uso.produto[uso.campo] = enviadas.get(uso.chave).caminho;
+    for (const uso of usos) uso.alvo[uso.campo] = enviadas.get(uso.chave).caminho;
     return [...enviadas].map(([chaveFoto, envio]) => ({ chave: chaveFoto, caminho: envio.caminho, sha: envio.sha }));
   }
 

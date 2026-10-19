@@ -334,15 +334,41 @@ dialog::backdrop { background: rgb(17 17 17 / .55); }
   .variacao { grid-template-columns: minmax(0, 1fr) 11rem auto; grid-template-areas: "nome preco remover" "erro erro erro"; }
 }
 
-/* Foto */
+/* Fotos: a primeira é a capa. Sem fotos, o ícone da categoria (.foto-previa) ao lado do botão. */
 .foto-area { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
 .foto-previa {
   flex: none; width: 120px; height: 120px; border-radius: 12px; overflow: hidden;
   display: grid; place-items: center; background: var(--fundo-foto); color: var(--bronze);
 }
-.foto-previa img { width: 100%; height: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
 .foto-acoes { flex: 1 1 180px; display: grid; gap: 8px; justify-items: start; }
 .arquivo:focus-visible + label { outline: 3px solid var(--bronze-escuro); outline-offset: 2px; }
+#p-foto-erro { overflow-wrap: anywhere; } /* pode trazer o nome do arquivo */
+
+/* Cartões em grade: 2 por linha no celular, 4 na janela do computador */
+.fotos {
+  flex: 1 1 100%; list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;
+}
+.foto-cartao {
+  position: relative; min-width: 0; display: grid; gap: 8px; align-content: start;
+  padding: 8px; border: 1px solid var(--bronze-claro); border-radius: 10px; background: var(--card);
+}
+.foto-cartao.capa { padding: 7px; border: 2px solid var(--bronze-escuro); }
+.foto-cartao-previa {
+  position: relative; display: grid; place-items: center; aspect-ratio: 1; border-radius: 8px; overflow: hidden;
+  background: var(--fundo-foto); color: var(--bronze);
+}
+/* Foto inteira, sem cortar. Absoluta: a altura do quadrado vem do aspect-ratio e o 100% não valeria dentro do grid. */
+.foto-cartao-previa img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.foto-selo {
+  position: absolute; top: 12px; left: 12px; max-width: calc(100% - 24px);
+  padding: 2px 8px; border-radius: 999px; font-size: 16px; font-weight: 700; line-height: 1.4;
+  background: var(--branco); color: var(--texto-2); border: 1px solid var(--texto-2);
+}
+.foto-cartao.capa .foto-selo { background: var(--bronze-escuro); color: var(--branco); border-color: var(--bronze-escuro); }
+.foto-cartao-acoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.foto-cartao-acoes .seta { flex: 1 0 44px; }
+.foto-remover { flex: 1 0 auto; padding: 8px 10px; } /* vai para a linha de baixo quando não cabe ao lado das setas */
 
 /* Publicar */
 .lista-alteracoes { padding-left: 1.2em; }

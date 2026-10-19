@@ -28,6 +28,10 @@ import {
   proximaOrdemCategoria,
   normalizarCatalogo,
   imagemPermitida,
+  fotosDoProduto,
+  caminhosDasFotos,
+  MAX_FOTOS,
+  CAMPOS_FOTOS,
   aplicarAlteracoes,
   compactarOps,
   fotosPendentesUsadas,
@@ -265,6 +269,73 @@ describe('ordem e catálogo', () => {
     assert.equal(limpo.produtos.length, 3);
     assert.throws(() => normalizarCatalogo({ produtos: [] }));
   });
+
+  test('normalizarCatalogo deixa só as fotos extras com caminho válido', () => {
+    const dados = catalogo();
+    dados.produtos[0].fotosExtras = [
+      { imagem: 'img/produtos/a-1.webp', miniatura: 'img/produtos/a-1-mini.webp' },
+      { imagem: 'https://exemplo.com/x.jpg', miniatura: '' },
+      { imagem: 'pendente:foto-9', miniatura: 'pendente:foto-9-mini' },
+      null,
+      ['img/produtos/a-2.webp'],
+    ];
+    dados.produtos[1].fotosExtras = 'quebrado';
+    const limpo = normalizarCatalogo(dados);
+    assert.deepEqual(limpo.produtos[0].fotosExtras, [{ imagem: 'img/produtos/a-1.webp', miniatura: 'img/produtos/a-1-mini.webp' }]);
+    assert.deepEqual(limpo.produtos[1].fotosExtras, []);
+    assert.deepEqual(limpo.produtos[2].fotosExtras, []);
+  });
+});
+
+describe('fotos do produto', () => {
+  const capa = { imagem: 'img/produtos/livro-a1-x.webp', miniatura: 'img/produtos/livro-a1-x-mini.webp' };
+  const verso = { imagem: 'img/produtos/livro-a1-y.webp', miniatura: 'img/produtos/livro-a1-y-mini.webp' };
+
+  test('fotosDoProduto: capa primeiro, depois as extras na ordem', () => {
+    assert.deepEqual(fotosDoProduto({ ...capa, fotosExtras: [verso] }), [capa, verso]);
+    assert.deepEqual(fotosDoProduto(capa), [capa]);
+  });
+
+  test('fotosDoProduto: sem foto, campo vazio ou formato quebrado não vira foto', () => {
+    assert.deepEqual(fotosDoProduto({ imagem: '', miniatura: '' }), []);
+    assert.deepEqual(fotosDoProduto({}), []);
+    assert.deepEqual(fotosDoProduto(null), []);
+    assert.deepEqual(fotosDoProduto({ fotosExtras: 'x' }), []);
+    assert.deepEqual(fotosDoProduto({ fotosExtras: [null, 3, [], { imagem: '' }, { imagem: 5 }] }), []);
+  });
+
+  test('fotosDoProduto: sem capa não há fotos (extras que sobraram de um painel antigo)', () => {
+    assert.deepEqual(fotosDoProduto({ imagem: '', miniatura: '', fotosExtras: [verso] }), []);
+    assert.deepEqual(fotosDoProduto({ fotosExtras: [verso] }), []);
+    // A capa com só uma das metades continua sendo capa.
+    assert.deepEqual(fotosDoProduto({ imagem: capa.imagem, fotosExtras: [verso] }), [{ imagem: capa.imagem, miniatura: '' }, verso]);
+  });
+
+  test('fotosDoProduto: a mesma foto repetida aparece uma vez só', () => {
+    assert.deepEqual(fotosDoProduto({ ...capa, fotosExtras: [verso, { ...capa }, { ...verso }] }), [capa, verso]);
+  });
+
+  test('fotosDoProduto devolve cópias (mexer no resultado não muda o produto)', () => {
+    const produto = { ...capa, fotosExtras: [{ ...verso }] };
+    fotosDoProduto(produto)[1].imagem = 'mudou';
+    assert.equal(produto.fotosExtras[0].imagem, verso.imagem);
+  });
+
+  test('caminhosDasFotos junta foto e miniatura de todas as fotos', () => {
+    assert.deepEqual(caminhosDasFotos({ ...capa, fotosExtras: [verso, { imagem: 'pendente:foto-2', miniatura: '' }] }), [
+      capa.imagem, capa.miniatura, verso.imagem, verso.miniatura, 'pendente:foto-2',
+    ]);
+    assert.deepEqual(caminhosDasFotos({}), []);
+    assert.deepEqual(caminhosDasFotos(null), []);
+  });
+
+  test('caminhosDasFotos também conta as fotos que fotosDoProduto pula (extras sem capa)', () => {
+    assert.deepEqual(caminhosDasFotos({ imagem: '', miniatura: '', fotosExtras: [verso] }), [verso.imagem, verso.miniatura]);
+  });
+
+  test('MAX_FOTOS conta a capa', () => {
+    assert.equal(MAX_FOTOS, 6);
+  });
 });
 
 describe('rascunho: compactarOps + aplicarAlteracoes', () => {
@@ -291,6 +362,56 @@ describe('rascunho: compactarOps + aplicarAlteracoes', () => {
     ops = compactarOps(ops, { tipo: 'produto', acao: 'excluir', id: novo.id }, base);
     assert.deepEqual(ops, []);
     assert.equal(fotosPendentesUsadas(ops).size, 0);
+  });
+
+  test('fotos pendentes dentro de fotosExtras também contam como usadas', () => {
+    const base = catalogo();
+    const comExtras = { ...novo, fotosExtras: [{ imagem: 'pendente:foto-2', miniatura: 'pendente:foto-2-mini' }] };
+    let ops = compactarOps([], { ...criar, dados: comExtras }, base);
+    ops = compactarOps(ops, {
+      tipo: 'produto', acao: 'alterar', id: 'camiseta-jesus-a1',
+      campos: { fotosExtras: [{ imagem: 'img/produtos/c-1.webp', miniatura: 'img/produtos/c-1-mini.webp' }, { imagem: 'pendente:foto-3', miniatura: 'pendente:foto-3-mini' }] },
+    }, base);
+    assert.deepEqual([...fotosPendentesUsadas(ops)].sort(), ['foto-1', 'foto-1-mini', 'foto-2', 'foto-2-mini', 'foto-3', 'foto-3-mini']);
+  });
+
+  test('fotos andam juntas: se uma mudou, capa e extras ficam todas na operação', () => {
+    const base = catalogo();
+    const capa = { imagem: 'img/produtos/c.webp', miniatura: 'img/produtos/c-mini.webp' };
+    const e1 = { imagem: 'img/produtos/e1.webp', miniatura: 'img/produtos/e1-mini.webp' };
+    Object.assign(base.produtos[0], capa, { fotosExtras: [e1] });
+    const nova = { imagem: 'pendente:foto-n', miniatura: 'pendente:foto-n-mini' };
+    // Aparelho A acrescenta uma foto: a capa não mudou, mas vai junto.
+    const ops = compactarOps([], {
+      tipo: 'produto', acao: 'alterar', id: 'camiseta-jesus-a1',
+      campos: { ...capa, fotosExtras: [e1, nova] },
+    }, base);
+    assert.deepEqual(Object.keys(ops[0].campos).sort(), [...CAMPOS_FOTOS].sort());
+    // Enquanto isso, o aparelho B tirou a capa e publicou: e1 virou a capa.
+    const maisNova = catalogo();
+    Object.assign(maisNova.produtos[0], e1);
+    const { dados } = aplicarAlteracoes(maisNova, ops);
+    // Vale o conjunto de A inteiro: nada de e1 repetida.
+    assert.deepEqual(fotosDoProduto(dados.produtos[0]), [capa, e1, nova]);
+    // Mudar só outra coisa não arrasta as fotos para a operação.
+    const soPreco = compactarOps([], { tipo: 'produto', acao: 'alterar', id: 'camiseta-jesus-a1', campos: { ...capa, precoCentavos: 100 } }, base);
+    assert.deepEqual(soPreco[0].campos, { precoCentavos: 100 });
+    // Voltar todas as fotos ao original desfaz a parte das fotos.
+    const desfeito = compactarOps(ops, { tipo: 'produto', acao: 'alterar', id: 'camiseta-jesus-a1', campos: { ...capa, fotosExtras: [e1] } }, base);
+    assert.deepEqual(desfeito, []);
+  });
+
+  test('fotosExtras: alterar substitui a lista inteira, e null remove o campo', () => {
+    const base = catalogo();
+    base.produtos[0].fotosExtras = [{ imagem: 'img/produtos/c-1.webp', miniatura: 'img/produtos/c-1-mini.webp' }];
+    const nova = [{ imagem: 'img/produtos/c-2.webp', miniatura: 'img/produtos/c-2-mini.webp' }];
+    let ops = compactarOps([], { tipo: 'produto', acao: 'alterar', id: 'camiseta-jesus-a1', campos: { fotosExtras: nova } }, base);
+    assert.deepEqual(aplicarAlteracoes(base, ops).dados.produtos[0].fotosExtras, nova);
+    // Voltar para a lista original desfaz a alteração.
+    ops = compactarOps(ops, { tipo: 'produto', acao: 'alterar', id: 'camiseta-jesus-a1', campos: { fotosExtras: base.produtos[0].fotosExtras } }, base);
+    assert.deepEqual(ops, []);
+    ops = compactarOps(ops, { tipo: 'produto', acao: 'alterar', id: 'camiseta-jesus-a1', campos: { fotosExtras: null } }, base);
+    assert.equal('fotosExtras' in aplicarAlteracoes(base, ops).dados.produtos[0], false);
   });
 
   test('vários "alterar" viram um só, com os campos mesclados', () => {
@@ -418,6 +539,14 @@ describe('validarCatalogo', () => {
     ['id repetido', (d) => { d.produtos[1].id = d.produtos[0].id; }, /id repetido/],
     ['foto ainda pendente', (d) => { d.produtos[0].imagem = 'pendente:foto-1'; }, /foto ainda não foi enviada/],
     ['foto com URL externa', (d) => { d.produtos[0].imagem = 'https://exemplo.com/x.jpg'; }, /caminho de foto inválido/],
+    ['fotos extras fora de lista', (d) => { d.produtos[0].fotosExtras = { imagem: 'img/produtos/a.webp' }; }, /fotos extras em formato inválido/],
+    ['foto extra sem miniatura', (d) => { d.produtos[0].fotosExtras = [{ imagem: 'img/produtos/a.webp', miniatura: '' }]; }, /a foto 2 está incompleta/],
+    ['foto extra que não é objeto', (d) => { d.produtos[0].fotosExtras = ['img/produtos/a.webp']; }, /a foto 2 está incompleta/],
+    ['foto extra ainda pendente', (d) => { d.produtos[0].fotosExtras = [{ imagem: 'pendente:foto-2', miniatura: 'pendente:foto-2-mini' }]; }, /a foto 2 ainda não foi enviada/],
+    ['foto extra com URL externa', (d) => { d.produtos[0].fotosExtras = [{ imagem: 'img/produtos/a.webp', miniatura: 'https://exemplo.com/x.jpg' }]; }, /a foto 2 tem caminho inválido/],
+    ['fotos demais', (d) => {
+      d.produtos[0].fotosExtras = Array.from({ length: MAX_FOTOS }, (_, n) => ({ imagem: `img/produtos/a-${n}.webp`, miniatura: `img/produtos/a-${n}-mini.webp` }));
+    }, /tem mais de 6 fotos/],
     ['data de novidade inválida', (d) => { d.produtos[0].novidadeAte = '09/11/2026'; }, /data de novidade inválida/],
     ['categoria repetida', (d) => { d.categorias.push({ id: 'outros', nome: 'Outros 2', ordem: 9 }); }, /Categoria repetida/],
   ];
@@ -436,5 +565,22 @@ describe('validarCatalogo', () => {
     dados.produtos[0].miniatura = 'pendente:foto-1-mini';
     assert.deepEqual(validarCatalogo(dados, { permitirPendentes: true }), []);
     assert.equal(validarCatalogo(dados).length, 2);
+  });
+
+  test('fotos extras corretas (até 5, além da capa) passam', () => {
+    const dados = catalogo();
+    dados.produtos[0].imagem = 'img/produtos/a-0.webp';
+    dados.produtos[0].miniatura = 'img/produtos/a-0-mini.webp';
+    dados.produtos[0].fotosExtras = Array.from({ length: MAX_FOTOS - 1 }, (_, n) => ({ imagem: `img/produtos/a-${n + 1}.webp`, miniatura: `img/produtos/a-${n + 1}-mini.jpg` }));
+    assert.deepEqual(validarCatalogo(dados), []);
+    dados.produtos[0].fotosExtras = [];
+    assert.deepEqual(validarCatalogo(dados), []);
+  });
+
+  test('foto extra "pendente:" só passa com permitirPendentes (um erro por foto)', () => {
+    const dados = catalogo();
+    dados.produtos[0].fotosExtras = [{ imagem: 'pendente:foto-2', miniatura: 'pendente:foto-2-mini' }];
+    assert.deepEqual(validarCatalogo(dados, { permitirPendentes: true }), []);
+    assert.deepEqual(validarCatalogo(dados), ['Produto "Camiseta Jesus": a foto 2 ainda não foi enviada.']);
   });
 });

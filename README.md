@@ -13,6 +13,25 @@ O acesso ao painel é passado pessoalmente pelo responsável da loja.
 - Os produtos ficam em `data/produtos.json` e os dados da igreja em `data/igreja.json`.
 - O painel grava as alterações direto neste repositório. O GitHub Pages republica sozinho, normalmente em 1 a 2 minutos (pode levar até 10).
 
+## Fotos dos produtos
+
+- Cada produto pode ter até **6 fotos** (ex.: frente e verso do livro). A primeira é a **capa**: é a que aparece na lista.
+- No `produtos.json`, a capa fica em `imagem`/`miniatura` e as outras, na ordem, em `fotosExtras`:
+
+```json
+"imagem": "img/produtos/livro-x-m1x2k3.webp",
+"miniatura": "img/produtos/livro-x-m1x2k3-mini.webp",
+"fotosExtras": [
+  { "imagem": "img/produtos/livro-x-m1x2k3-2.webp", "miniatura": "img/produtos/livro-x-m1x2k3-2-mini.webp" }
+]
+```
+
+- Sem fotos extras, o campo `fotosExtras` não existe. Produtos antigos continuam funcionando sem mudar nada.
+- O painel guarda a foto inteira, sem cortar (no máximo 1000 px no lado maior). Só a miniatura (240 px) é quadrada.
+- No detalhe do produto, com mais de uma foto, dá para deslizar para o lado ou tocar nas miniaturas embaixo.
+- Capa e fotos extras são gravadas sempre juntas no rascunho: se dois aparelhos mexem nas fotos do mesmo produto, vale o conjunto de quem publicou por último.
+- Depois de colocar esta versão no ar, feche e abra de novo o painel em todo aparelho que estava com ele aberto. Um painel antigo aberto não enxerga as fotos extras (por isso ele perde o acesso às fotos guardadas no aparelho até ser recarregado).
+
 ## Arquivos
 
 ```

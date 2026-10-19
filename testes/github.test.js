@@ -285,6 +285,56 @@ const opCriarComFoto = (id = 'caneca-nova-b1', uuid = 'aaaa-1111') => ({
   },
 });
 
+/* ---------- Fotos extras (frente, verso…) ---------- */
+
+const fotoPendente = (uuid) => ({ imagem: `pendente:foto-${uuid}`, miniatura: `pendente:foto-${uuid}-mini` });
+const fotoPublicada = (id, carimbo) => ({ imagem: `img/produtos/${id}-${carimbo}.webp`, miniatura: `img/produtos/${id}-${carimbo}-mini.webp` });
+
+// Livro novo com capa + verso + lombada, as três ainda só no aparelho.
+const opCriarLivroComFotos = (id = 'livro-novo-d1') => ({
+  tipo: 'produto', acao: 'criar', id, rotulo: 'Livro Novo',
+  dados: {
+    id, categoria: 'biblias', nome: 'Livro Novo', precoCentavos: 4990,
+    ...fotoPendente('capa-d1'),
+    fotosExtras: [fotoPendente('verso-d2'), fotoPendente('lombada-d3')],
+    visivel: true, ordem: 20,
+  },
+});
+const CHAVES_DO_LIVRO = ['capa-d1', 'verso-d2', 'lombada-d3'];
+
+// Bíblia de Estudo já publicada com capa e verso (enviados juntos: carimbo e carimbo-2).
+const CAPA_PUBLICADA = fotoPublicada('biblia-estudo-a2', CARIMBO);
+const VERSO_PUBLICADO = fotoPublicada('biblia-estudo-a2', `${CARIMBO}-2`);
+
+function catalogoComFotosExtras() {
+  const dados = catalogoBase();
+  const biblia = dados.produtos.find((p) => p.id === 'biblia-estudo-a2');
+  Object.assign(biblia, CAPA_PUBLICADA, { fotosExtras: [{ ...VERSO_PUBLICADO }] });
+  return dados;
+}
+
+function gitHubComFotosExtras(opcoes = {}) {
+  const extrasNaArvore = {};
+  for (const caminho of [...Object.values(CAPA_PUBLICADA), ...Object.values(VERSO_PUBLICADO)]) {
+    extrasNaArvore[caminho] = { sha: `blob-antigo-${caminho}` };
+  }
+  return criarGitHubFalso({
+    arquivos: { [CAMINHO_PRODUTOS]: paraJSON(catalogoComFotosExtras()), [CAMINHO_IGREJA]: paraJSON(igrejaBase()) },
+    extrasNaArvore,
+    ...opcoes,
+  });
+}
+
+const opFotosExtrasDaBiblia = (fotosExtras) =>
+  ({ tipo: 'produto', acao: 'alterar', id: 'biblia-estudo-a2', campos: { fotosExtras }, rotulo: 'Bíblia de Estudo' });
+
+// Confere que cada caminho aponta para o blob da foto certa (e a miniatura para o da miniatura).
+function conferirBlobs(github, foto, uuid) {
+  const arvore = github.arvoreDoHead();
+  assert.equal(github.blobs.get(arvore.get(foto.imagem).sha).content, fotoFalsa(`foto-${uuid}`), foto.imagem);
+  assert.equal(github.blobs.get(arvore.get(foto.miniatura).sha).content, fotoFalsa(`foto-${uuid}-mini`), foto.miniatura);
+}
+
 /* ---------- Testes ---------- */
 
 describe('constantes e cabeçalhos', () => {
@@ -641,6 +691,170 @@ describe('publicar: fotos', () => {
       },
     );
     assert.equal(escritas(github).length, 0);
+  });
+});
+
+describe('publicar: fotos extras', () => {
+  // Sem intervalo entre escritas o relógio falso não anda: as três fotos caem no mesmo milissegundo,
+  // que é o pior caso para o carimbo (precisa do "-2", "-3").
+  test('capa + 2 fotos extras pendentes: 3 envios, 6 blobs e caminhos distintos na ordem certa', async () => {
+    const github = criarGitHubFalso();
+    const { cliente } = montar(github, { intervaloEscritaMs: 0 });
+    const pedidas = [];
+    const mensagens = [];
+    const r = await cliente.publicar({
+      ops: [opCriarLivroComFotos()],
+      obterFoto: obterFotoFalsa(pedidas),
+      aoProgresso: (texto) => mensagens.push(texto),
+    });
+
+    assert.deepEqual(rotas(github), [...SEQUENCIA_LEITURA, ...Array(6).fill('POST blobs'), ...SEQUENCIA_GRAVACAO]);
+    assert.deepEqual(pedidas, CHAVES_DO_LIVRO.flatMap((uuid) => [`foto-${uuid}`, `foto-${uuid}-mini`]));
+    for (const n of [1, 2, 3]) assert.ok(mensagens.includes(`Enviando foto ${n} de 3…`), `foto ${n} de 3`);
+    assert.equal(mensagens.filter((m) => m.startsWith('Enviando foto')).length, 3, 'um aviso por foto, extras incluídas');
+
+    // Cada foto tem o seu carimbo; foto e miniatura da mesma foto dividem o carimbo.
+    const livro = r.produtos.produtos.find((p) => p.id === 'livro-novo-d1');
+    assert.equal(livro.imagem, `img/produtos/livro-novo-d1-${CARIMBO}.webp`);
+    assert.equal(livro.miniatura, `img/produtos/livro-novo-d1-${CARIMBO}-mini.webp`);
+    assert.deepEqual(livro.fotosExtras, [
+      fotoPublicada('livro-novo-d1', `${CARIMBO}-2`),
+      fotoPublicada('livro-novo-d1', `${CARIMBO}-3`),
+    ]);
+    for (const extra of livro.fotosExtras) assert.deepEqual(Object.keys(extra), ['imagem', 'miniatura']);
+    assert.deepEqual(validarCatalogo(r.produtos), []);
+
+    const fotos = [livro, ...livro.fotosExtras];
+    const caminhos = fotos.flatMap((f) => [f.imagem, f.miniatura]);
+    assert.equal(new Set(caminhos).size, 6, 'nenhum caminho repetido');
+    for (const caminho of caminhos) assert.match(caminho, /^img\/produtos\/livro-novo-d1-[a-z0-9]+(-\d+)?(-mini)?\.webp$/);
+
+    const entradas = corpos(github, 'POST trees')[0].tree;
+    assert.deepEqual(entradas.slice(0, 6).map((e) => e.path), caminhos);
+    assert.deepEqual(entradas.slice(0, 6).map((e) => e.sha), ['blob-1', 'blob-2', 'blob-3', 'blob-4', 'blob-5', 'blob-6']);
+    fotos.forEach((foto, i) => conferirBlobs(github, foto, CHAVES_DO_LIVRO[i]));
+
+    // O produtos.json publicado é o mesmo que voltou, sem "pendente:", e os outros produtos não ganham o campo.
+    const publicado = JSON.parse(github.lerNoHead(CAMINHO_PRODUTOS));
+    assert.deepEqual(publicado, r.produtos);
+    assert.ok(!github.lerNoHead(CAMINHO_PRODUTOS).includes('pendente:'));
+    assert.ok(publicado.produtos.filter((p) => p.id !== 'livro-novo-d1').every((p) => !('fotosExtras' in p)));
+  });
+
+  test('com o intervalo normal entre escritas os carimbos já saem diferentes (e continuam válidos)', async () => {
+    const github = criarGitHubFalso();
+    const { cliente } = montar(github);
+    const r = await cliente.publicar({ ops: [opCriarLivroComFotos()], obterFoto: obterFotoFalsa() });
+    const livro = r.produtos.produtos.find((p) => p.id === 'livro-novo-d1');
+    const fotos = [livro, ...livro.fotosExtras];
+    assert.equal(new Set(fotos.flatMap((f) => [f.imagem, f.miniatura])).size, 6);
+    for (const f of fotos) assert.equal(f.miniatura, f.imagem.replace(/\.webp$/, '-mini.webp'), 'miniatura com o carimbo da foto');
+    fotos.forEach((foto, i) => conferirBlobs(github, foto, CHAVES_DO_LIVRO[i]));
+    assert.deepEqual(validarCatalogo(r.produtos), []);
+  });
+
+  test('alterar acrescentando uma foto extra: as fotos já publicadas (capa e extra) ficam como estão', async () => {
+    const github = gitHubComFotosExtras();
+    const { cliente } = montar(github);
+    const op = opFotosExtrasDaBiblia([{ ...VERSO_PUBLICADO }, fotoPendente('lombada-e1')]);
+    const r = await cliente.publicar({ ops: [op], obterFoto: obterFotoFalsa() });
+
+    assert.equal(contar(github, 'POST blobs'), 2);
+    const biblia = r.produtos.produtos.find((p) => p.id === 'biblia-estudo-a2');
+    assert.equal(biblia.imagem, CAPA_PUBLICADA.imagem);
+    assert.equal(biblia.miniatura, CAPA_PUBLICADA.miniatura);
+    // carimbo e carimbo-2 já existem (capa e verso) → a nova vai para carimbo-3.
+    assert.deepEqual(biblia.fotosExtras, [VERSO_PUBLICADO, fotoPublicada('biblia-estudo-a2', `${CARIMBO}-3`)]);
+    assert.deepEqual(validarCatalogo(r.produtos), []);
+    conferirBlobs(github, biblia.fotosExtras[1], 'lombada-e1');
+
+    const antigas = [...Object.values(CAPA_PUBLICADA), ...Object.values(VERSO_PUBLICADO)];
+    const entradas = corpos(github, 'POST trees')[0].tree;
+    assert.ok(entradas.every((e) => e.sha !== null), 'nenhuma entrada apagando arquivo');
+    assert.ok(!entradas.some((e) => antigas.includes(e.path)), 'não regrava caminho existente');
+    for (const caminho of antigas) assert.equal(github.arvoreDoHead().get(caminho).sha, `blob-antigo-${caminho}`);
+  });
+
+  test('foto extra trocada: o caminho antigo (que só existe na base) também conta como ocupado', async () => {
+    const github = gitHubComFotosExtras();
+    const { cliente } = montar(github);
+    const r = await cliente.publicar({ ops: [opFotosExtrasDaBiblia([fotoPendente('verso-novo-e2')])], obterFoto: obterFotoFalsa() });
+
+    const biblia = r.produtos.produtos.find((p) => p.id === 'biblia-estudo-a2');
+    assert.deepEqual(biblia.fotosExtras, [fotoPublicada('biblia-estudo-a2', `${CARIMBO}-3`)]);
+    assert.ok(github.arvoreDoHead().has(VERSO_PUBLICADO.imagem), 'a foto antiga não é apagada');
+    assert.equal(github.arvoreDoHead().get(VERSO_PUBLICADO.imagem).sha, `blob-antigo-${VERSO_PUBLICADO.imagem}`);
+  });
+
+  test('409 no PATCH com fotos extras → nova tentativa reaproveita os 6 blobs', async () => {
+    const github = criarGitHubFalso({ forcar: { 'PATCH refs': [{ status: 409 }] } });
+    const { cliente } = montar(github, { intervaloEscritaMs: 0 });
+    const pedidas = [];
+    const r = await cliente.publicar({ ops: [opCriarLivroComFotos()], obterFoto: obterFotoFalsa(pedidas) });
+
+    assert.equal(contar(github, 'PATCH refs'), 2);
+    assert.equal(contar(github, 'POST blobs'), 6, 'blobs não são reenviados');
+    assert.equal(pedidas.length, 6);
+    const [primeira, segunda] = corpos(github, 'POST trees');
+    assert.deepEqual(segunda.tree.slice(0, 6), primeira.tree.slice(0, 6), 'mesmos caminhos e mesmos sha');
+    const livro = r.produtos.produtos.find((p) => p.id === 'livro-novo-d1');
+    assert.equal(livro.fotosExtras[1].imagem, `img/produtos/livro-novo-d1-${CARIMBO}-3.webp`);
+    nuncaForce(github);
+  });
+
+  test('"Tentar novamente" depois de erro de rede reaproveita também as fotos extras', async () => {
+    const github = criarGitHubFalso({ forcar: { 'POST trees': [new TypeError('Failed to fetch')] } });
+    const { cliente } = montar(github, { intervaloEscritaMs: 0 });
+    const pedidas = [];
+    const ops = congelar([opCriarLivroComFotos()]);
+    await assert.rejects(cliente.publicar({ ops, obterFoto: obterFotoFalsa(pedidas) }), erroDoTipo('rede'));
+    assert.equal(contar(github, 'POST blobs'), 6);
+
+    const mensagens = [];
+    const r = await cliente.publicar({ ops, obterFoto: obterFotoFalsa(pedidas), aoProgresso: (t) => mensagens.push(t) });
+    assert.equal(contar(github, 'POST blobs'), 6, 'nenhum blob reenviado');
+    assert.equal(pedidas.length, 6);
+    assert.ok(!mensagens.some((m) => m.startsWith('Enviando foto')), 'nada a enviar na segunda vez');
+
+    const livro = r.produtos.produtos.find((p) => p.id === 'livro-novo-d1');
+    assert.deepEqual(livro.fotosExtras, [
+      fotoPublicada('livro-novo-d1', `${CARIMBO}-2`),
+      fotoPublicada('livro-novo-d1', `${CARIMBO}-3`),
+    ]);
+    [livro, ...livro.fotosExtras].forEach((foto, i) => conferirBlobs(github, foto, CHAVES_DO_LIVRO[i]));
+    assert.equal(github.arvoreDoHead().get(livro.fotosExtras[1].miniatura).sha, 'blob-6');
+  });
+
+  test('foto extra pendente que sumiu do aparelho → erro de validação dizendo qual foto, sem gravar nada', async () => {
+    const github = gitHubComFotosExtras();
+    const { cliente } = montar(github);
+    const ops = congelar([opFotosExtrasDaBiblia([{ ...VERSO_PUBLICADO }, fotoPendente('lombada-e3')])]);
+    const copia = structuredClone(ops);
+    await assert.rejects(
+      cliente.publicar({ ops, obterFoto: async () => null }),
+      (e) => {
+        erroDoTipo('validacao', 'A foto 3 de "Bíblia de Estudo" não foi encontrada neste aparelho. Escolha a foto de novo e publique.')(e);
+        assert.deepEqual(e.detalhes, ['Foto pendente: foto-lombada-e3']);
+        return true;
+      },
+    );
+    assert.deepEqual(ops, copia);
+    assert.equal(escritas(github).length, 0);
+    assert.equal(github.estado.head, 'head-inicial');
+  });
+
+  test('só a foto extra sumiu (a capa estava lá) → erro e nenhum commit', async () => {
+    const github = criarGitHubFalso();
+    const { cliente } = montar(github);
+    const encontrar = obterFotoFalsa();
+    const ops = congelar([opCriarLivroComFotos()]);
+    await assert.rejects(
+      cliente.publicar({ ops, obterFoto: (chave) => (chave.startsWith('foto-verso-d2') ? null : encontrar(chave)) }),
+      erroDoTipo('validacao', 'A foto 2 de "Livro Novo" não foi encontrada neste aparelho. Escolha a foto de novo e publique.'),
+    );
+    assert.equal(contar(github, 'POST trees'), 0);
+    assert.equal(contar(github, 'POST commits'), 0);
+    assert.equal(github.estado.head, 'head-inicial');
   });
 });
 
