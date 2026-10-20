@@ -3,7 +3,7 @@
 :root {
   --bronze-claro: #AB9472;  /* só decoração, sem texto */
   --bronze: #977037;        /* só decoração, sem texto */
-  --bronze-escuro: #7A5A2B; /* fundo com texto branco; texto bronze sobre fundo claro */
+  --bronze-escuro: #7A5A2B; /* bronze de destaque: fundo com texto --sobre-bronze; texto sobre o card e o creme */
   --cabecalho: linear-gradient(135deg, #6F5227, #8A6530);
   --creme: #E4E0D5;
   --card: #FAF8F3;
@@ -15,7 +15,48 @@
   --raio: 12px;
   --topo-fixo: 72px;        /* altura do que fica grudado no topo (chips) */
   --fonte: Roboto, system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
-  color-scheme: only light; /* impede o navegador de escurecer a página */
+  /* Cores que mudam no tema escuro. Valores literais (não var()): um var() aqui pegaria a cor do tema escuro. */
+  --sobre-bronze: #FFFFFF;  /* texto e ícone sobre --bronze-escuro (chip marcado, botões, voltar ao topo) */
+  --campo-fundo: #FFFFFF;   /* fundo do campo de busca */
+  --icone-busca: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235A5248' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+  --rodape-fundo: #111111;
+  --rodape-texto: #E4E0D5;
+  --toast-fundo: #111111;
+  --toast-texto: #FFFFFF;
+  --fechar-fundo: rgb(250 248 243 / .94);
+  --linha-chips: rgb(122 90 43 / .25);
+  --contorno-janela: transparent;
+  color-scheme: only light; /* o pedido mais forte para o navegador não escurecer a página */
+}
+
+/* Tema escuro: só quando a pessoa escolhe no botão sol/lua (js/tema.js), nunca automático.
+   Só na tela: impresso sai sempre claro. Contrastes conferidos (tabela no README). */
+@media screen {
+  :root[data-tema="escuro"] {
+    --bronze-claro: #6E5A3F;  /* só decoração (bordas) */
+    --bronze: #A88654;        /* borda da busca e enfeites */
+    --bronze-escuro: #D9B57C; /* no escuro o bronze de destaque é claro: preço, foco, chip marcado, botões */
+    --cabecalho: linear-gradient(135deg, #553E1D, #6F5227);
+    --creme: #1A1612;         /* fundo da página */
+    --card: #2A231D;
+    --texto: #F1EBE1;
+    --texto-2: #C9BFB0;
+    --acento: #F28B7E;
+    --fundo-foto: #221C17;
+    --sobre-bronze: #1A1612;
+    --campo-fundo: #322A23;
+    --icone-busca: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C9BFB0' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+    --rodape-fundo: #110E0B;
+    --rodape-texto: #DCD3C5;
+    --toast-fundo: #EDE5D8;
+    --toast-texto: #1A1612;
+    --fechar-fundo: rgb(42 35 29 / .94);
+    --linha-chips: rgb(217 181 124 / .2);
+    --contorno-janela: rgb(217 181 124 / .3);
+    color-scheme: dark; /* sem "light" e sem "only": nada aqui pede para o navegador escurecer de novo */
+  }
+  /* Cor literal e seletor (não var()): em navegadores mais antigos o ::backdrop não herda variáveis. */
+  :root[data-tema="escuro"] .detalhe::backdrop { background: rgb(8 6 4 / .7); }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -60,6 +101,33 @@ a { color: inherit; }
 .logo span { color: var(--branco); font-weight: 700; line-height: 1; letter-spacing: -.02em; }
 .logo img ~ span { visibility: hidden; }
 
+/* Botão sol/lua: trilho com os dois símbolos; a bolinha branca fica atrás do modo em uso.
+   A posição segue o data-tema da raiz, que o js/tema.js põe antes de a página aparecer:
+   assim a bolinha já nasce no lugar certo e não desliza a cada carregamento. */
+.tema {
+  position: relative; flex: none; margin-left: auto;
+  display: flex; align-items: center; justify-content: space-between;
+  width: 76px; height: 44px; padding: 0 12px;
+  border: 0; border-radius: 22px; background: transparent; color: var(--branco);
+}
+.tema::before { /* trilho: borda branca 70% passa de 3:1 sobre o cabeçalho */
+  content: ''; position: absolute; inset: 5px 0;
+  border: 1px solid rgb(255 255 255 / .7); border-radius: 17px; background: rgb(0 0 0 / .18);
+}
+.tema::after { content: ''; position: absolute; top: 8px; left: 7px; width: 28px; height: 28px; border-radius: 50%; background: var(--branco); }
+:root[data-tema="escuro"] .tema::after { transform: translateX(34px); }
+.tema svg { position: relative; z-index: 1; display: block; }
+/* Símbolo em cima da bolinha branca: bronze do cabeçalho (7,21:1). */
+:root:not([data-tema="escuro"]) .tema-sol, :root[data-tema="escuro"] .tema-lua { color: #6F5227; }
+/* Alto contraste do Windows: a bolinha e o símbolo de cima usam as cores do sistema. */
+@media (forced-colors: active) {
+  .tema::after { background: CanvasText; }
+  :root:not([data-tema="escuro"]) .tema-sol, :root[data-tema="escuro"] .tema-lua { color: Canvas; }
+}
+
+/* Aviso quando o navegador escurece o site por conta própria (js/tema.js). */
+.aviso-escuro p { flex: 1 1 260px; }
+
 .faixa {
   padding: 8px 16px; text-align: center; line-height: 1.35;
   background: var(--card); color: var(--texto-2);
@@ -72,7 +140,7 @@ a { color: inherit; }
 .campo input {
   width: 100%; height: 48px; padding: 0 48px 0 44px;
   border: 1px solid var(--bronze); border-radius: 24px;
-  background: var(--branco) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235A5248' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 14px 50% / 20px;
+  background: var(--campo-fundo) var(--icone-busca) no-repeat 14px 50% / 20px;
   -webkit-appearance: none; appearance: none;
 }
 .campo input::placeholder { color: var(--texto-2); opacity: 1; }
@@ -87,7 +155,7 @@ a { color: inherit; }
 /* ---------- Chips (atalhos, não abas) ---------- */
 .chips {
   position: sticky; top: 0; z-index: 5; margin-top: 8px;
-  background: var(--creme); box-shadow: 0 1px 0 rgb(122 90 43 / .25);
+  background: var(--creme); box-shadow: 0 1px 0 var(--linha-chips);
 }
 .chips ul {
   position: relative; display: flex; gap: 8px; max-width: 1200px; margin-inline: auto;
@@ -99,7 +167,7 @@ a { color: inherit; }
   border: 1px solid var(--bronze-claro); border-radius: 22px;
   background: var(--card); color: var(--texto); text-decoration: none; white-space: nowrap;
 }
-.chip[aria-current] { background: var(--bronze-escuro); border-color: var(--bronze-escuro); color: var(--branco); font-weight: 700; }
+.chip[aria-current] { background: var(--bronze-escuro); border-color: var(--bronze-escuro); color: var(--sobre-bronze); font-weight: 700; }
 .chips li { flex: none; }
 
 /* ---------- Avisos e estados ---------- */
@@ -112,7 +180,7 @@ a { color: inherit; }
 .erro p { margin-bottom: 16px; }
 .botao {
   display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 20px;
-  border: 0; border-radius: 24px; background: var(--bronze-escuro); color: var(--branco);
+  border: 0; border-radius: 24px; background: var(--bronze-escuro); color: var(--sobre-bronze);
   font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none;
 }
 .botao.secundario { border: 2px solid var(--bronze-escuro); background: transparent; color: var(--bronze-escuro); }
@@ -157,14 +225,14 @@ a { color: inherit; }
 .detalhe {
   width: 100%; max-width: 100%; max-height: 90vh; max-height: 90dvh; margin: auto 0 0;
   padding: 0; border: 0; border-radius: 16px 16px 0 0; overflow: hidden;
-  background: var(--card); color: var(--texto);
+  background: var(--card); color: var(--texto); box-shadow: 0 0 0 1px var(--contorno-janela);
 }
 .detalhe::backdrop { background: rgb(17 17 17 / .55); }
 .detalhe-in { max-height: inherit; overflow-y: auto; overscroll-behavior: contain; }
 .fechar {
   position: absolute; top: 8px; right: 8px; z-index: 1; width: 44px; height: 44px;
   display: grid; place-items: center; border: 0; border-radius: 50%;
-  background: rgb(250 248 243 / .94); color: var(--texto); box-shadow: 0 1px 4px rgb(17 17 17 / .25);
+  background: var(--fechar-fundo); color: var(--texto); box-shadow: 0 1px 4px rgb(17 17 17 / .25);
 }
 .foto { display: flex; justify-content: center; background: var(--fundo-foto); }
 /* Celular: foto de ponta a ponta, com altura limitada para o preço aparecer sem rolar.
@@ -221,7 +289,7 @@ a { color: inherit; }
 .etiquetas li { padding: 4px 12px; border: 1px solid rgb(255 255 255 / .7); border-radius: 16px; }
 
 /* ---------- Rodapé, voltar ao topo e aviso flutuante ---------- */
-.rodape { padding: 24px 16px 88px; background: var(--texto); color: var(--creme); text-align: center; }
+.rodape { padding: 24px 16px 88px; background: var(--rodape-fundo); color: var(--rodape-texto); text-align: center; }
 .rodape p + p { margin-top: 8px; }
 #copyright {
   color: inherit; cursor: default; text-decoration: none;
@@ -231,13 +299,13 @@ a { color: inherit; }
 .voltar-topo {
   position: fixed; left: 16px; bottom: 16px; z-index: 20; width: 48px; height: 48px;
   display: grid; place-items: center; border: 0; border-radius: 50%;
-  background: var(--bronze-escuro); color: var(--branco); box-shadow: 0 2px 8px rgb(17 17 17 / .3);
+  background: var(--bronze-escuro); color: var(--sobre-bronze); box-shadow: 0 2px 8px rgb(17 17 17 / .3);
 }
 .toast {
   position: fixed; left: 50%; bottom: 76px; z-index: 30; max-width: calc(100% - 32px);
   transform: translateX(-50%); text-align: center;
 }
-.toast:not(:empty) { padding: 12px 16px; border-radius: 10px; background: var(--texto); color: var(--branco); box-shadow: 0 2px 8px rgb(17 17 17 / .3); }
+.toast:not(:empty) { padding: 12px 16px; border-radius: 10px; background: var(--toast-fundo); color: var(--toast-texto); box-shadow: 0 2px 8px rgb(17 17 17 / .3); }
 
 /* ---------- Telas maiores ---------- */
 @media (min-width: 720px) {
@@ -279,6 +347,7 @@ a { color: inherit; }
 @media (prefers-reduced-motion: no-preference) {
   .esqueleto span { animation: pulsar 1.1s ease-in-out infinite alternate; }
   .detalhe[open] { animation: subir .22s ease-out; }
+  .tema::after { transition: transform .2s ease; }
   @keyframes pulsar { to { opacity: .35; } }
   @keyframes subir { from { transform: translateY(32px); opacity: 0; } }
 }

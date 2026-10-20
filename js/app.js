@@ -60,13 +60,13 @@ function el(tag, props, ...filhos) {
 
 // Placeholder quando não há foto: ícone da categoria desenhado num SVG (vira <img>).
 // Largura e altura no SVG: sem elas há navegador que informa 300x150 e o ícone não passa por quadrado.
+// Sem fundo próprio: aparece o fundo da foto (--fundo-foto) de onde ele estiver, nos dois temas.
 const icones = {};
 function imagemDoIcone(categoriaId) {
   let d = iconeDaCategoria(categoriaId);
   if (typeof d !== 'string') d = iconeDaCategoria('outros'); // id "constructor" herdaria do Object
   icones[d] ||= 'data:image/svg+xml,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 48 48" width="48" height="48">' +
-    '<rect x="-12" y="-12" width="48" height="48" fill="#EFE9DD"/>' +
     `<path d="${d}" fill="none" stroke="#977037" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   );
   return icones[d];

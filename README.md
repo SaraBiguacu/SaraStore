@@ -43,6 +43,7 @@ css/painel.css        estilo do painel
 js/comum.js           funções compartilhadas (preço, datas, busca, rascunho, validação)
 js/app.js             catálogo
 js/dialogo.js         fechamento confiável das janelas (<dialog>)
+js/tema.js            tema claro/escuro do catálogo (botão sol/lua)
 js/github.js          integração com a API do GitHub (publicar)
 js/painel.js          interface do painel
 js/fotos.js           compressão das fotos e rascunho de fotos (IndexedDB)
@@ -105,19 +106,40 @@ Se a seção da igreja sumir depois de uma edição, o arquivo ficou com erro. V
 
 O painel usa `API_VERSION = '2026-03-10'` em `js/github.js`. Se o GitHub desativar essa versão, o painel avisa. Nesse caso, troque pelo valor mais novo da lista em <https://docs.github.com/rest/about-the-rest-api/api-versions> e aumente o `?v=` dos arquivos.
 
+## Tema claro e escuro
+
+- O catálogo abre **sempre no tema claro**, mesmo com o celular no modo escuro. O escuro só liga pelo botão sol/lua no canto superior direito, e a escolha fica salva no aparelho (`js/tema.js`).
+- O painel e a página do QR Code ficam sempre no claro.
+- Alguns navegadores escurecem qualquer site por conta própria e ignoram o pedido do site para ficar claro (por exemplo, o modo escuro do Samsung Internet). Nenhum código consegue impedir isso. Quando o site percebe que está sendo escurecido assim, mostra um aviso explicando que dá para desligar o modo escuro para sites nas configurações do navegador.
+- Para mexer nas cores: o tema escuro é o bloco `:root[data-tema="escuro"]` no começo de `css/style.css`. Nunca use `prefers-color-scheme` nem `color-scheme: light` (sem "only"): os dois fazem o navegador escurecer o site sozinho.
+
 ## Cores e contraste (WCAG)
 
-| Combinação | Contraste |
-|---|---|
-| Texto `#111111` sobre o card `#FAF8F3` | 17,79:1 |
-| Texto `#111111` sobre o creme `#E4E0D5` | 14,32:1 |
-| Texto secundário `#5A5248` sobre o card | 7,23:1 |
-| Texto secundário `#5A5248` sobre o creme | 5,82:1 |
-| Bronze escuro `#7A5A2B` (preços, títulos) sobre o card | 5,95:1 |
-| Bronze escuro `#7A5A2B` sobre o creme | 4,79:1 |
-| Branco sobre o bronze escuro `#7A5A2B` (chips, botões) | 6,32:1 |
-| Branco sobre o cabeçalho `#6F5227` → `#8A6530` | 7,21:1 a 5,27:1 |
-| Vermelho `#C62737` sobre o card | 5,28:1 |
-| Creme `#E4E0D5` sobre o rodapé `#111111` | 14,32:1 |
+Mínimos: texto 4,5:1; contornos de foco, bordas de campo e ícones 3:1.
 
-O bronze `#977037` → `#AB9472` é usado só em decoração sem texto. Branco sobre `#977037` dá 4,48:1 e não passa no mínimo de 4,5:1.
+| Combinação | Claro | Escuro |
+|---|---|---|
+| Texto principal sobre o card | 17,79:1 (`#111111`/`#FAF8F3`) | 13,06:1 (`#F1EBE1`/`#2A231D`) |
+| Texto principal sobre o fundo da página | 14,32:1 (`#111111`/`#E4E0D5`) | 15,17:1 (`#F1EBE1`/`#1A1612`) |
+| Texto secundário sobre o card | 7,23:1 (`#5A5248`/`#FAF8F3`) | 8,52:1 (`#C9BFB0`/`#2A231D`) |
+| Texto secundário sobre o fundo da página | 5,82:1 (`#5A5248`/`#E4E0D5`) | 9,90:1 (`#C9BFB0`/`#1A1612`) |
+| Texto digitado na busca | 18,88:1 (`#111111`/`#FFFFFF`) | 11,88:1 (`#F1EBE1`/`#322A23`) |
+| Placeholder da busca | 7,68:1 (`#5A5248`/`#FFFFFF`) | 7,75:1 (`#C9BFB0`/`#322A23`) |
+| Preços e botão "Compartilhar" sobre o card | 5,95:1 (`#7A5A2B`/`#FAF8F3`) | 8,00:1 (`#D9B57C`/`#2A231D`) |
+| Bronze de destaque sobre o fundo da página | 4,79:1 (`#7A5A2B`/`#E4E0D5`) | 9,29:1 (`#D9B57C`/`#1A1612`) |
+| Texto do chip marcado e dos botões | 6,32:1 (`#FFFFFF`/`#7A5A2B`) | 9,29:1 (`#1A1612`/`#D9B57C`) |
+| Branco sobre o cabeçalho e a seção da igreja | 7,21:1 a 5,27:1 (`#6F5227` → `#8A6530`) | 10,03:1 a 7,21:1 (`#553E1D` → `#6F5227`) |
+| Selo "Novidade" sobre o card | 5,28:1 (`#C62737`/`#FAF8F3`) | 6,46:1 (`#F28B7E`/`#2A231D`) |
+| Rodapé | 14,32:1 (`#E4E0D5`/`#111111`) | 12,98:1 (`#DCD3C5`/`#110E0B`) |
+| Aviso flutuante (toast) | 18,88:1 (`#FFFFFF`/`#111111`) | 14,39:1 (`#1A1612`/`#EDE5D8`) |
+| Borda da busca × fundo da página | 3,40:1 | 5,31:1 |
+| Borda da busca × fundo do campo | 4,48:1 | 4,16:1 |
+| Foco bronze × fundo da página | 4,79:1 | 9,29:1 |
+| Foco bronze × card e detalhe | 5,95:1 | 8,00:1 |
+| Foco branco × cabeçalho e seção da igreja | 7,21:1 a 5,27:1 | 10,03:1 a 7,21:1 |
+| Botão sol/lua: símbolo branco × cabeçalho | 7,21:1 a 5,27:1 | 10,03:1 a 7,21:1 |
+| Botão sol/lua: símbolo `#6F5227` sobre a bolinha branca | 7,21:1 | 7,21:1 |
+| Botão sol/lua: borda branca 70% × cabeçalho | 4,49:1 a 3,50:1 | 5,86:1 a 4,49:1 |
+| Ícone de categoria (produto sem foto) × fundo da foto | 3,70:1 (`#977037`/`#EFE9DD`) | 3,76:1 (`#977037`/`#221C17`) |
+
+Só decoração, sem exigência: bordas dos chips, da faixa e das miniaturas (`#AB9472` no claro, `#6E5A3F` no escuro), a separação entre card e página e a linha embaixo dos chips. Branco sobre `#977037` dá 4,48:1 e não passa no mínimo de 4,5:1, por isso esse bronze não leva texto (o "sara" do logo reserva é logotipo).
