@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-19T19:34:47-03:00",
+  "atualizadoEm": "2026-10-19T23:05:02-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -221,6 +221,31 @@
       "miniatura": "img/produtos/minha-vida-uma-chama-mvfu0u62-mvfu1dsy-mini.webp",
       "visivel": true,
       "ordem": 130
+    },
+    {
+      "id": "camiseta-pracima-2026-mvg1j3x3",
+      "categoria": "camisetas",
+      "nome": "Camiseta PRACIMA - 2026",
+      "descricao": "",
+      "precoCentavos": 7000,
+      "imagem": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jbu9.webp",
+      "miniatura": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jbu9-mini.webp",
+      "fotosExtras": [
+        {
+          "imagem": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jd8s.webp",
+          "miniatura": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jd8s-mini.webp"
+        },
+        {
+          "imagem": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jex9.webp",
+          "miniatura": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jex9-mini.webp"
+        },
+        {
+          "imagem": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jgpy.webp",
+          "miniatura": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jgpy-mini.webp"
+        }
+      ],
+      "visivel": true,
+      "ordem": 80
     }
   ]
 }
