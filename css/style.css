@@ -91,15 +91,15 @@ a { color: inherit; }
 .topo h1 { font-size: 20px; line-height: 1.2; letter-spacing: .05em; }
 .topo p { line-height: 1.3; }
 
-.logo {
-  position: relative; flex: none; display: grid; place-items: center;
-  width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
-  background: linear-gradient(135deg, #977037, #AB9472);
-  box-shadow: 0 0 0 2px rgb(255 255 255 / .3);
+/* Logo: a chama branca direto no cabeçalho. Se a imagem não carregar, aparece o círculo bronze com "sara". */
+.logo { flex: none; display: grid; place-items: center; }
+.logo img { display: block; width: auto; height: 48px; }
+.logo span {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #977037, #AB9472); box-shadow: 0 0 0 2px rgb(255 255 255 / .3);
+  color: var(--branco); font-weight: 700; line-height: 1; letter-spacing: -.02em;
 }
-.logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.logo span { color: var(--branco); font-weight: 700; line-height: 1; letter-spacing: -.02em; }
-.logo img ~ span { visibility: hidden; }
+.logo img ~ span { display: none; }
 
 /* Botão sol/lua: trilho com os dois símbolos; a bolinha branca fica atrás do modo em uso.
    A posição segue o data-tema da raiz, que o js/tema.js põe antes de a página aparecer:

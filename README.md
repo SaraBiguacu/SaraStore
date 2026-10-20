@@ -50,8 +50,9 @@ js/fotos.js           compressão das fotos e rascunho de fotos (IndexedDB)
 js/qr.js              geração do QR Code
 data/produtos.json    categorias e produtos
 data/igreja.json      dados da igreja e da loja
-img/logo.png          logo (colocar a foto de perfil do Instagram aqui)
-img/icone.svg         ícone usado quando o logo não existe
+img/chama.png         logo do cabeçalho: a chama da Sara, branca e sem fundo
+img/logo.png          a chama branca sobre o bronze: ícone do celular, prévia dos links e folha do QR Code
+img/icone.png         ícone da aba do navegador (a chama do logo)
 img/produtos/         fotos dos produtos (enviadas pelo painel)
 testes/               testes automáticos
 ```
