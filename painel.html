@@ -10,18 +10,23 @@
   <meta name="theme-color" content="#6F5227">
   <title>Painel – SARA STORE</title>
   <link rel="icon" href="img/icone.png" type="image/png">
-  <link rel="stylesheet" href="css/painel.css?v=4">
+  <link rel="stylesheet" href="css/painel.css?v=5">
   <link rel="modulepreload" href="js/comum.js?v=2">
   <link rel="modulepreload" href="js/dialogo.js?v=1">
   <link rel="modulepreload" href="js/github.js?v=2">
   <link rel="modulepreload" href="js/fotos.js?v=2">
-  <script type="module" src="js/painel.js?v=2"></script>
+  <script type="module" src="js/painel.js?v=3"></script>
 </head>
 <body>
   <header class="topo">
     <div class="conteudo topo-linha">
       <span class="logo" aria-hidden="true"><img id="logo" src="img/chama.png" alt="" width="21" height="40"><span>sara</span></span>
       <h1>Painel SARA STORE</h1>
+      <!-- Abre em outra aba: o painel (e o rascunho) continua aberto. -->
+      <a id="abrir-qr" class="botao-topo botao-qr" href="qr.html" target="_blank" rel="noopener" aria-label="QR Code para imprimir (abre em outra aba)" hidden>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h.01M17 21h4v-4"/></svg>
+        <span class="rotulo-qr">QR Code</span>
+      </a>
       <button id="sair" class="botao-topo" type="button" hidden>Sair</button>
     </div>
   </header>
@@ -208,6 +213,11 @@
           </ol>
           <p><strong>Quanto tempo demora?</strong> Normalmente o site atualiza para todos em 1 a 2 minutos, mas pode levar até 10. O painel avisa quando já estiver no ar. Se depois de 12 minutos ainda não tiver aparecido, abra github.com/SaraBiguacu/SaraStore/actions para ver se deu erro.</p>
           <p>Se outra pessoa publicar ao mesmo tempo, o painel junta as duas coisas: as suas alterações são aplicadas por cima da versão mais nova, sem apagar o que a outra pessoa fez.</p>
+        </div>
+
+        <div class="cartao">
+          <h2>QR Code para imprimir</h2>
+          <p>O botão <strong>QR Code</strong>, no topo do painel, abre numa aba nova a folha com o QR Code que leva direto ao catálogo. Escolha <strong>Folha A5</strong> ou <strong>Display de mesa</strong> (folha A4 dobrada ao meio) e imprima em tamanho real (100%), sem ajustar à página. Não precisa imprimir de novo quando os preços mudam: o QR Code abre sempre o catálogo atualizado.</p>
         </div>
 
         <div class="cartao">

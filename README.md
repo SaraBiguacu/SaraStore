@@ -59,7 +59,7 @@ testes/               testes automáticos
 
 Extras:
 - **Modo balcão:** `https://sarabiguacu.github.io/SaraStore/?balcao=1`. Mostra a busca já focada, sem fotos e com preços maiores, para os atendentes.
-- **QR Code:** abra `qr.html`, escolha o modelo e imprima em tamanho real (100%).
+- **QR Code:** toque em **QR Code** no topo do painel (ou abra `qr.html`), escolha o modelo e imprima em tamanho real (100%).
 
 ## Publicação no GitHub Pages
 

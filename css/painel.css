@@ -63,11 +63,18 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .logo img ~ span { display: none; }
 
 .botao-topo {
-  flex: none; min-height: 44px; padding: 8px 14px; border-radius: 10px;
+  flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 8px 14px; border-radius: 10px; text-decoration: none;
   border: 2px solid rgb(255 255 255 / .85); background: transparent; color: var(--branco);
   font-weight: 700;
 }
 .botao-topo:hover { background: rgb(255 255 255 / .12); }
+/* Celular: o botão do QR Code fica só com o ícone (o nome continua no aria-label),
+   senão o título "Painel SARA STORE" quebra em três linhas. */
+@media (max-width: 480px) {
+  .botao-qr { padding-inline: 11px; }
+  .rotulo-qr { display: none; }
+}
 
 main { padding-top: 16px; padding-bottom: 40px; }
 body.com-barra main { padding-bottom: 168px; }

@@ -156,6 +156,7 @@ function fecharDialogos() {
 function mostrarTela(nome, { focar = true } = {}) {
   for (const tela of TELAS) $(`tela-${tela}`).hidden = tela !== nome;
   $('sair').hidden = nome !== 'chave' && nome !== 'painel';
+  $('abrir-qr').hidden = nome !== 'painel';
   renderBarra();
   const alvo = { login: 'login-usuario', chave: 'chave' }[nome];
   if (focar && alvo) $(alvo).focus();
