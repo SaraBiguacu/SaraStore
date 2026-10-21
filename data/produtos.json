@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-20T22:05:08-03:00",
+  "atualizadoEm": "2026-10-21T19:39:43-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -32,7 +32,7 @@
       "precoCentavos": 6990,
       "imagem": "img/produtos/camiseta-fe-e-graca-mv1kiu81-ilustracao.webp",
       "miniatura": "img/produtos/camiseta-fe-e-graca-mv1kiu81-ilustracao-mini.webp",
-      "visivel": true,
+      "visivel": false,
       "ordem": 20
     },
     {
@@ -43,7 +43,7 @@
       "precoCentavos": 8490,
       "imagem": "img/produtos/camiseta-semeando-esperanca-mv1kiu85-ilustracao.webp",
       "miniatura": "img/produtos/camiseta-semeando-esperanca-mv1kiu85-ilustracao-mini.webp",
-      "visivel": true,
+      "visivel": false,
       "ordem": 60
     },
     {
@@ -54,7 +54,7 @@
       "precoCentavos": 7200,
       "imagem": "img/produtos/camiseta-de-evangelismo-mv1kiu86-unsplash.webp",
       "miniatura": "img/produtos/camiseta-de-evangelismo-mv1kiu86-unsplash-mini.webp",
-      "visivel": true,
+      "visivel": false,
       "ordem": 70
     },
     {
@@ -65,7 +65,7 @@
       "precoCentavos": 9500,
       "imagem": "img/produtos/biblia-para-adolescentes-mv1kiu8e-unsplash.webp",
       "miniatura": "img/produtos/biblia-para-adolescentes-mv1kiu8e-unsplash-mini.webp",
-      "visivel": true,
+      "visivel": false,
       "ordem": 50
     },
     {
@@ -76,7 +76,7 @@
       "precoCentavos": 14990,
       "imagem": "img/produtos/biblia-em-couro-mv1kiu8f-unsplash.webp",
       "miniatura": "img/produtos/biblia-em-couro-mv1kiu8f-unsplash-mini.webp",
-      "visivel": true,
+      "visivel": false,
       "ordem": 60
     },
     {
@@ -87,7 +87,7 @@
       "precoCentavos": 4800,
       "imagem": "img/produtos/kit-de-oracao-mv1kiu8h-unsplash.webp",
       "miniatura": "img/produtos/kit-de-oracao-mv1kiu8h-unsplash-mini.webp",
-      "visivel": true,
+      "visivel": false,
       "ordem": 10
     },
     {
@@ -98,7 +98,7 @@
       "precoCentavos": 3990,
       "imagem": "img/produtos/caneca-crista-mv1kiu8i-ilustracao.webp",
       "miniatura": "img/produtos/caneca-crista-mv1kiu8i-ilustracao-mini.webp",
-      "visivel": true,
+      "visivel": false,
       "ordem": 20
     },
     {
@@ -109,7 +109,7 @@
       "precoCentavos": 4250,
       "imagem": "img/produtos/agenda-devocional-mv1kiu8j-unsplash.webp",
       "miniatura": "img/produtos/agenda-devocional-mv1kiu8j-unsplash-mini.webp",
-      "visivel": true,
+      "visivel": false,
       "ordem": 30
     },
     {
