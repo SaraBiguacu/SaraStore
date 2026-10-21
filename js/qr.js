@@ -13,6 +13,20 @@ const modelo = document.getElementById('modelo-cartao');
 const estiloPagina = document.getElementById('estilo-pagina');
 let siga = '';
 
+// Pix: a imagem que o banco gerou, usada como está (redesenhar um QR de pagamento pode mandar o dinheiro errado).
+const CONTEUDOS = {
+  catalogo: { descricao: 'Leva direto ao catálogo de preços da SARA STORE.', chamada: 'Aponte a câmera e veja os preços', url: URL_SITE },
+  pix: { descricao: 'QR Code do Pix da SARA STORE, para pagar no balcão.', chamada: 'Pague com Pix', url: 'Abra o app do banco, escolha Pix e aponte a câmera' },
+};
+let conteudo = 'catalogo';
+
+function qrDoPix() {
+  const img = document.createElement('img');
+  img.src = 'img/pix.jpeg';
+  img.alt = 'QR Code do Pix da SARA STORE';
+  return img;
+}
+
 function elementoSvg(tag, atributos) {
   const elemento = document.createElementNS(SVG, tag);
   for (const [chave, valor] of Object.entries(atributos)) elemento.setAttribute(chave, String(valor));
@@ -78,7 +92,11 @@ function montar(tipo) {
     // importNode cria o cartão já no documento da página (o conteúdo do <template> é inerte).
     const cartao = document.importNode(modelo.content.firstElementChild, true);
     if (tipo === 'mesa' && i === 0) cartao.classList.add('virado');
-    cartao.querySelector('.qr').append(qr ? qr.cloneNode(true) : semQR());
+    const textos = CONTEUDOS[conteudo];
+    cartao.querySelector('.chamada').textContent = textos.chamada;
+    cartao.querySelector('.url').textContent = textos.url;
+    if (conteudo === 'pix') cartao.querySelector('.qr').append(qrDoPix());
+    else cartao.querySelector('.qr').append(qr ? qr.cloneNode(true) : semQR());
     if (siga) cartao.querySelector('.siga').textContent = siga;
     cartoes.push(cartao);
   }
@@ -102,6 +120,13 @@ async function carregarInstagram() {
 
 for (const opcao of document.querySelectorAll('input[name="modelo"]')) {
   opcao.addEventListener('change', () => montar(opcao.value));
+}
+for (const opcao of document.querySelectorAll('input[name="conteudo"]')) {
+  opcao.addEventListener('change', () => {
+    conteudo = opcao.value;
+    document.getElementById('descricao').textContent = CONTEUDOS[conteudo].descricao;
+    montar(document.querySelector('input[name="modelo"]:checked')?.value || 'a5');
+  });
 }
 document.getElementById('imprimir').addEventListener('click', () => window.print());
 

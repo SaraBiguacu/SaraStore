@@ -69,7 +69,7 @@
     .cartao .igreja-nome { margin-top: .8cqw; color: var(--texto-2); font-size: 3.4cqw; line-height: 1.25; }
     .chamada { font-size: 7.2cqw; font-weight: 700; line-height: 1.15; }
     .qr { width: 60cqw; aspect-ratio: 1; }
-    .qr svg { display: block; width: 100%; height: 100%; }
+    .qr svg, .qr img { display: block; width: 100%; height: 100%; object-fit: contain; }
     .sem-qr { display: grid; place-items: center; height: 100%; padding: 4cqw; border: .5cqw dashed var(--bronze-claro); color: var(--texto-2); font-size: 3.6cqw; }
     .url { color: var(--texto-2); font-size: 3.7cqw; line-height: 1.3; overflow-wrap: anywhere; }
     .siga { color: var(--bronze-escuro); font-size: 5cqw; font-weight: 700; }
@@ -104,12 +104,17 @@
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.5.2/qrcode.min.js" integrity="sha512-c3HC2N32Up+KwxhFN2dZkoDWSdxWqwzDJCnroUffjS/HBQHf5Ou1uFpqIT0rOIJ5fW8TxHmUpCDndH2A6xNhpQ==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-  <script type="module" src="js/qr.js?v=2"></script>
+  <script type="module" src="js/qr.js?v=3"></script>
 </head>
 <body>
   <div class="controles">
     <h1>QR Code para imprimir</h1>
-    <p>Leva direto ao catálogo de preços da SARA STORE.</p>
+    <p id="descricao">Leva direto ao catálogo de preços da SARA STORE.</p>
+    <fieldset>
+      <legend>Conteúdo</legend>
+      <label class="opcao"><input type="radio" name="conteudo" value="catalogo" checked> Catálogo de preços</label>
+      <label class="opcao"><input type="radio" name="conteudo" value="pix"> Pix</label>
+    </fieldset>
     <fieldset>
       <legend>Modelo</legend>
       <label class="opcao"><input type="radio" name="modelo" value="a5" checked> Folha A5</label>
