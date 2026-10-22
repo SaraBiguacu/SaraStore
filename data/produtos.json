@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-21T19:41:25-03:00",
+  "atualizadoEm": "2026-10-22T10:16:23-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -24,39 +24,6 @@
     }
   ],
   "produtos": [
-    {
-      "id": "camiseta-fe-e-graca-mv1kiu81",
-      "categoria": "camisetas",
-      "nome": "Camiseta Fé e Graça",
-      "descricao": "Estampa inspiradora com tema de fé e graça, ideal para evangelizar e expressar a crença com simplicidade e alegria.",
-      "precoCentavos": 6990,
-      "imagem": "img/produtos/camiseta-fe-e-graca-mv1kiu81-ilustracao.webp",
-      "miniatura": "img/produtos/camiseta-fe-e-graca-mv1kiu81-ilustracao-mini.webp",
-      "visivel": false,
-      "ordem": 20
-    },
-    {
-      "id": "camiseta-semeando-esperanca-mv1kiu85",
-      "categoria": "camisetas",
-      "nome": "Camiseta Semeando Esperança",
-      "descricao": "Peça com mensagem de esperança e encorajamento, perfeita para quem quer transmitir fé, amor e propósito.",
-      "precoCentavos": 8490,
-      "imagem": "img/produtos/camiseta-semeando-esperanca-mv1kiu85-ilustracao.webp",
-      "miniatura": "img/produtos/camiseta-semeando-esperanca-mv1kiu85-ilustracao-mini.webp",
-      "visivel": false,
-      "ordem": 60
-    },
-    {
-      "id": "camiseta-de-evangelismo-mv1kiu86",
-      "categoria": "camisetas",
-      "nome": "Camiseta de Evangelismo",
-      "descricao": "Modelo com tema de evangelismo e testemunho, ideal para compartilhar a mensagem de Cristo com leveza e autenticidade.",
-      "precoCentavos": 7200,
-      "imagem": "img/produtos/camiseta-de-evangelismo-mv1kiu86-unsplash.webp",
-      "miniatura": "img/produtos/camiseta-de-evangelismo-mv1kiu86-unsplash-mini.webp",
-      "visivel": false,
-      "ordem": 70
-    },
     {
       "id": "biblia-para-adolescentes-mv1kiu8e",
       "categoria": "biblias",
@@ -226,11 +193,19 @@
       "id": "camiseta-pracima-2026-mvg1j3x3",
       "categoria": "camisetas",
       "nome": "Camiseta PRACIMA - 2026",
-      "descricao": "",
+      "descricao": "Camiseta da Conferência PRACIMA de 2026",
       "precoCentavos": 7000,
-      "imagem": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jbu9.webp",
-      "miniatura": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jbu9-mini.webp",
+      "imagem": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvjkee3r.webp",
+      "miniatura": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvjkee3r-mini.webp",
       "fotosExtras": [
+        {
+          "imagem": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvjkefq6.webp",
+          "miniatura": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvjkefq6-mini.webp"
+        },
+        {
+          "imagem": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jbu9.webp",
+          "miniatura": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jbu9-mini.webp"
+        },
         {
           "imagem": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jd8s.webp",
           "miniatura": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvg1jd8s-mini.webp"
@@ -246,6 +221,131 @@
       ],
       "visivel": true,
       "ordem": 80
+    },
+    {
+      "id": "camiseta-sara-kids-mvjjo7nl",
+      "categoria": "camisetas",
+      "nome": "Camiseta SARA KIDs",
+      "descricao": "",
+      "precoCentavos": 3000,
+      "imagem": "img/produtos/camiseta-sara-kids-mvjjo7nl-mvjkei1g.webp",
+      "miniatura": "img/produtos/camiseta-sara-kids-mvjjo7nl-mvjkei1g-mini.webp",
+      "visivel": true,
+      "ordem": 90
+    },
+    {
+      "id": "camiseta-there-s-power-in-the-present-mvjjq7dt",
+      "categoria": "camisetas",
+      "nome": "Camiseta There's Power in The Present",
+      "descricao": "",
+      "precoCentavos": 3000,
+      "imagem": "img/produtos/camiseta-there-s-power-in-the-present-mvjjq7dt-mvjkek23.webp",
+      "miniatura": "img/produtos/camiseta-there-s-power-in-the-present-mvjjq7dt-mvjkek23-mini.webp",
+      "visivel": true,
+      "ordem": 100
+    },
+    {
+      "id": "camiseta-arena-xp-2026-mvjjrzau",
+      "categoria": "camisetas",
+      "nome": "Camiseta ARENA XP 2026",
+      "descricao": "Camiseta da Conferência XPerience 2026",
+      "precoCentavos": 3000,
+      "imagem": "img/produtos/camiseta-arena-xp-2026-mvjjrzau-mvjkemuo.webp",
+      "miniatura": "img/produtos/camiseta-arena-xp-2026-mvjjrzau-mvjkemuo-mini.webp",
+      "visivel": true,
+      "ordem": 110
+    },
+    {
+      "id": "camiseta-arena-mvjjtmlt",
+      "categoria": "camisetas",
+      "nome": "Camiseta ARENA",
+      "descricao": "",
+      "precoCentavos": 3000,
+      "imagem": "img/produtos/camiseta-arena-mvjjtmlt-mvjkeqls.webp",
+      "miniatura": "img/produtos/camiseta-arena-mvjjtmlt-mvjkeqls-mini.webp",
+      "fotosExtras": [
+        {
+          "imagem": "img/produtos/camiseta-arena-mvjjtmlt-mvjketrm.webp",
+          "miniatura": "img/produtos/camiseta-arena-mvjjtmlt-mvjketrm-mini.webp"
+        }
+      ],
+      "visivel": true,
+      "ordem": 120
+    },
+    {
+      "id": "camiseta-pracima-mvjjvqq6",
+      "categoria": "camisetas",
+      "nome": "Camiseta PRACIMA",
+      "descricao": "1° Edição da camiseta PARCIMA",
+      "precoCentavos": 3000,
+      "imagem": "img/produtos/camiseta-pracima-mvjjvqq6-mvjkewqm.webp",
+      "miniatura": "img/produtos/camiseta-pracima-mvjjvqq6-mvjkewqm-mini.webp",
+      "visivel": true,
+      "ordem": 130
+    },
+    {
+      "id": "camiseta-sara-mvjk2bp5",
+      "categoria": "camisetas",
+      "nome": "Camiseta Sara",
+      "descricao": "",
+      "precoCentavos": 3000,
+      "imagem": "img/produtos/camiseta-sara-mvjk2bp5-mvjkezvw.webp",
+      "miniatura": "img/produtos/camiseta-sara-mvjk2bp5-mvjkezvw-mini.webp",
+      "visivel": true,
+      "ordem": 140
+    },
+    {
+      "id": "camiseta-dos-ministerios-mvjk6tnr",
+      "categoria": "camisetas",
+      "nome": "Camiseta dos Ministérios",
+      "descricao": "",
+      "precoCentavos": 3000,
+      "imagem": "img/produtos/camiseta-dos-ministerios-mvjk6tnr-mvjkf2zj.webp",
+      "miniatura": "img/produtos/camiseta-dos-ministerios-mvjk6tnr-mvjkf2zj-mini.webp",
+      "fotosExtras": [
+        {
+          "imagem": "img/produtos/camiseta-dos-ministerios-mvjk6tnr-mvjkf609.webp",
+          "miniatura": "img/produtos/camiseta-dos-ministerios-mvjk6tnr-mvjkf609-mini.webp"
+        },
+        {
+          "imagem": "img/produtos/camiseta-dos-ministerios-mvjk6tnr-mvjkf9ve.webp",
+          "miniatura": "img/produtos/camiseta-dos-ministerios-mvjk6tnr-mvjkf9ve-mini.webp"
+        },
+        {
+          "imagem": "img/produtos/camiseta-dos-ministerios-mvjk6tnr-mvjkfd0r.webp",
+          "miniatura": "img/produtos/camiseta-dos-ministerios-mvjk6tnr-mvjkfd0r-mini.webp"
+        }
+      ],
+      "visivel": true,
+      "ordem": 150
+    },
+    {
+      "id": "camiseta-arena-moviment-mvjkbwph",
+      "categoria": "camisetas",
+      "nome": "Camiseta Arena Moviment",
+      "descricao": "",
+      "precoCentavos": 3000,
+      "imagem": "img/produtos/camiseta-arena-moviment-mvjkbwph-mvjkfg1x.webp",
+      "miniatura": "img/produtos/camiseta-arena-moviment-mvjkbwph-mvjkfg1x-mini.webp",
+      "visivel": true,
+      "ordem": 160
+    },
+    {
+      "id": "camiseta-playep-wins-battles-mvjke755",
+      "categoria": "camisetas",
+      "nome": "Camiseta Playep Wins Battles",
+      "descricao": "",
+      "precoCentavos": 3000,
+      "imagem": "img/produtos/camiseta-playep-wins-battles-mvjke755-mvjkfj43.webp",
+      "miniatura": "img/produtos/camiseta-playep-wins-battles-mvjke755-mvjkfj43-mini.webp",
+      "fotosExtras": [
+        {
+          "imagem": "img/produtos/camiseta-playep-wins-battles-mvjke755-mvjkfm91.webp",
+          "miniatura": "img/produtos/camiseta-playep-wins-battles-mvjke755-mvjkfm91-mini.webp"
+        }
+      ],
+      "visivel": true,
+      "ordem": 170
     }
   ]
 }
