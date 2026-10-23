@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-23T19:57:34-03:00",
+  "atualizadoEm": "2026-10-23T20:00:04-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -350,7 +350,7 @@
     {
       "id": "biblia-mvljtq3t",
       "categoria": "biblias",
-      "nome": "Bíblia",
+      "nome": "Bíblia com Capa Mole",
       "descricao": "",
       "precoCentavos": 4000,
       "imagem": "img/produtos/biblia-mvljtq3t-mvlk4ek0.webp",
