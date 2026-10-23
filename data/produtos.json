@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-23T20:00:04-03:00",
+  "atualizadoEm": "2026-10-23T20:10:27-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -317,9 +317,9 @@
     {
       "id": "biblia-mvljqsm1",
       "categoria": "biblias",
-      "nome": "Bíblia",
+      "nome": "Bíblia Capa Mole",
       "descricao": "",
-      "precoCentavos": 4000,
+      "precoCentavos": 3500,
       "imagem": "img/produtos/biblia-mvljqsm1-mvlk48os.webp",
       "miniatura": "img/produtos/biblia-mvljqsm1-mvlk48os-mini.webp",
       "visivel": true,
@@ -352,7 +352,7 @@
       "categoria": "biblias",
       "nome": "Bíblia com Capa Mole",
       "descricao": "",
-      "precoCentavos": 4000,
+      "precoCentavos": 3500,
       "imagem": "img/produtos/biblia-mvljtq3t-mvlk4ek0.webp",
       "miniatura": "img/produtos/biblia-mvljtq3t-mvlk4ek0-mini.webp",
       "visivel": true,
@@ -374,7 +374,7 @@
       "categoria": "biblias",
       "nome": "Bíblia",
       "descricao": "",
-      "precoCentavos": 4500,
+      "precoCentavos": 5000,
       "imagem": "img/produtos/biblia-mvlk2qiu-mvlk4i96.webp",
       "miniatura": "img/produtos/biblia-mvlk2qiu-mvlk4i96-mini.webp",
       "visivel": true,
