@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-23T19:44:00-03:00",
+  "atualizadoEm": "2026-10-23T19:57:34-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -363,7 +363,7 @@
       "categoria": "biblias",
       "nome": "Bíblia com Letra Grande",
       "descricao": "",
-      "precoCentavos": 4500,
+      "precoCentavos": 5000,
       "imagem": "img/produtos/biblia-com-letra-grande-mvlk1v9u-mvlk4gcy.webp",
       "miniatura": "img/produtos/biblia-com-letra-grande-mvlk1v9u-mvlk4gcy-mini.webp",
       "visivel": true,
@@ -385,7 +385,7 @@
       "categoria": "biblias",
       "nome": "Bíblia",
       "descricao": "",
-      "precoCentavos": 4000,
+      "precoCentavos": 5000,
       "imagem": "img/produtos/biblia-mvlk328v-mvlk4ke9.webp",
       "miniatura": "img/produtos/biblia-mvlk328v-mvlk4ke9-mini.webp",
       "visivel": true,
