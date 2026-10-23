@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-22T10:16:23-03:00",
+  "atualizadoEm": "2026-10-23T17:11:33-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -194,7 +194,7 @@
       "categoria": "camisetas",
       "nome": "Camiseta PRACIMA - 2026",
       "descricao": "Camiseta da Conferência PRACIMA de 2026",
-      "precoCentavos": 7000,
+      "precoCentavos": 6000,
       "imagem": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvjkee3r.webp",
       "miniatura": "img/produtos/camiseta-pracima-2026-mvg1j3x3-mvjkee3r-mini.webp",
       "fotosExtras": [
