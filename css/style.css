@@ -134,6 +134,11 @@ a { color: inherit; }
   border-bottom: 1px solid var(--bronze-claro);
 }
 
+/* ---------- Destaque (banner da promoção) ---------- */
+.destaque { padding-top: 12px; }
+.destaque img { display: block; width: 100%; max-width: 480px; height: auto; margin-inline: auto; border-radius: var(--raio); box-shadow: 0 1px 4px rgb(17 17 17 / .15); }
+.balcao .destaque { display: none; }
+
 /* ---------- Busca ---------- */
 .busca { padding-top: 12px; }
 .campo { position: relative; max-width: 640px; }
