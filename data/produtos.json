@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-23T17:11:33-03:00",
+  "atualizadoEm": "2026-10-23T19:44:00-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -24,50 +24,6 @@
     }
   ],
   "produtos": [
-    {
-      "id": "biblia-para-adolescentes-mv1kiu8e",
-      "categoria": "biblias",
-      "nome": "Bíblia para Adolescentes",
-      "descricao": "Bíblia pensada para jovens, com linguagem atual, temas relevantes e conteúdo que conecta a Palavra com a realidade.",
-      "precoCentavos": 9500,
-      "imagem": "img/produtos/biblia-para-adolescentes-mv1kiu8e-unsplash.webp",
-      "miniatura": "img/produtos/biblia-para-adolescentes-mv1kiu8e-unsplash-mini.webp",
-      "visivel": false,
-      "ordem": 50
-    },
-    {
-      "id": "biblia-em-couro-mv1kiu8f",
-      "categoria": "biblias",
-      "nome": "Bíblia em Couro",
-      "descricao": "Bíblia em acabamento premium em couro, com estética sofisticada, durabilidade e valor para presente ou uso pessoal.",
-      "precoCentavos": 14990,
-      "imagem": "img/produtos/biblia-em-couro-mv1kiu8f-unsplash.webp",
-      "miniatura": "img/produtos/biblia-em-couro-mv1kiu8f-unsplash-mini.webp",
-      "visivel": false,
-      "ordem": 60
-    },
-    {
-      "id": "kit-de-oracao-mv1kiu8h",
-      "categoria": "outros",
-      "nome": "Kit de Oração",
-      "descricao": "Kit com itens devocionais para apoio na oração, estudo e rotina espiritual do dia a dia.",
-      "precoCentavos": 4800,
-      "imagem": "img/produtos/kit-de-oracao-mv1kiu8h-unsplash.webp",
-      "miniatura": "img/produtos/kit-de-oracao-mv1kiu8h-unsplash-mini.webp",
-      "visivel": false,
-      "ordem": 10
-    },
-    {
-      "id": "caneca-crista-mv1kiu8i",
-      "categoria": "outros",
-      "nome": "Caneca Cristã",
-      "descricao": "Caneca com mensagem cristã, ideal para café, chá e momentos de reflexão e fé.",
-      "precoCentavos": 3990,
-      "imagem": "img/produtos/caneca-crista-mv1kiu8i-ilustracao.webp",
-      "miniatura": "img/produtos/caneca-crista-mv1kiu8i-ilustracao-mini.webp",
-      "visivel": false,
-      "ordem": 20
-    },
     {
       "id": "agenda-devocional-mv1kiu8j",
       "categoria": "outros",
@@ -346,6 +302,94 @@
       ],
       "visivel": true,
       "ordem": 170
+    },
+    {
+      "id": "biblia-mvljprfh",
+      "categoria": "biblias",
+      "nome": "Bíblia",
+      "descricao": "",
+      "precoCentavos": 4000,
+      "imagem": "img/produtos/biblia-mvljprfh-mvlk4774.webp",
+      "miniatura": "img/produtos/biblia-mvljprfh-mvlk4774-mini.webp",
+      "visivel": true,
+      "ordem": 90
+    },
+    {
+      "id": "biblia-mvljqsm1",
+      "categoria": "biblias",
+      "nome": "Bíblia",
+      "descricao": "",
+      "precoCentavos": 4000,
+      "imagem": "img/produtos/biblia-mvljqsm1-mvlk48os.webp",
+      "miniatura": "img/produtos/biblia-mvljqsm1-mvlk48os-mini.webp",
+      "visivel": true,
+      "ordem": 100
+    },
+    {
+      "id": "biblia-mvljs18h",
+      "categoria": "biblias",
+      "nome": "Biblia",
+      "descricao": "",
+      "precoCentavos": 4000,
+      "imagem": "img/produtos/biblia-mvljs18h-mvlk4alm.webp",
+      "miniatura": "img/produtos/biblia-mvljs18h-mvlk4alm-mini.webp",
+      "visivel": true,
+      "ordem": 110
+    },
+    {
+      "id": "biblia-mvljsshk",
+      "categoria": "biblias",
+      "nome": "Bíblia",
+      "descricao": "",
+      "precoCentavos": 4000,
+      "imagem": "img/produtos/biblia-mvljsshk-mvlk4ck5.webp",
+      "miniatura": "img/produtos/biblia-mvljsshk-mvlk4ck5-mini.webp",
+      "visivel": true,
+      "ordem": 120
+    },
+    {
+      "id": "biblia-mvljtq3t",
+      "categoria": "biblias",
+      "nome": "Bíblia",
+      "descricao": "",
+      "precoCentavos": 4000,
+      "imagem": "img/produtos/biblia-mvljtq3t-mvlk4ek0.webp",
+      "miniatura": "img/produtos/biblia-mvljtq3t-mvlk4ek0-mini.webp",
+      "visivel": true,
+      "ordem": 130
+    },
+    {
+      "id": "biblia-com-letra-grande-mvlk1v9u",
+      "categoria": "biblias",
+      "nome": "Bíblia com Letra Grande",
+      "descricao": "",
+      "precoCentavos": 4500,
+      "imagem": "img/produtos/biblia-com-letra-grande-mvlk1v9u-mvlk4gcy.webp",
+      "miniatura": "img/produtos/biblia-com-letra-grande-mvlk1v9u-mvlk4gcy-mini.webp",
+      "visivel": true,
+      "ordem": 140
+    },
+    {
+      "id": "biblia-mvlk2qiu",
+      "categoria": "biblias",
+      "nome": "Bíblia",
+      "descricao": "",
+      "precoCentavos": 4500,
+      "imagem": "img/produtos/biblia-mvlk2qiu-mvlk4i96.webp",
+      "miniatura": "img/produtos/biblia-mvlk2qiu-mvlk4i96-mini.webp",
+      "visivel": true,
+      "ordem": 150
+    },
+    {
+      "id": "biblia-mvlk328v",
+      "categoria": "biblias",
+      "nome": "Bíblia",
+      "descricao": "",
+      "precoCentavos": 4000,
+      "imagem": "img/produtos/biblia-mvlk328v-mvlk4ke9.webp",
+      "miniatura": "img/produtos/biblia-mvlk328v-mvlk4ke9-mini.webp",
+      "visivel": true,
+      "ordem": 160
     }
   ]
 }
