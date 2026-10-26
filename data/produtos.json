@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-23T20:10:27-03:00",
+  "atualizadoEm": "2026-10-26T10:19:20-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -232,7 +232,7 @@
       "id": "camiseta-pracima-mvjjvqq6",
       "categoria": "camisetas",
       "nome": "Camiseta PRACIMA",
-      "descricao": "1° Edição da camiseta PARCIMA",
+      "descricao": "1° Edição da camiseta PRACIMA",
       "precoCentavos": 3000,
       "imagem": "img/produtos/camiseta-pracima-mvjjvqq6-mvjkewqm.webp",
       "miniatura": "img/produtos/camiseta-pracima-mvjjvqq6-mvjkewqm-mini.webp",
