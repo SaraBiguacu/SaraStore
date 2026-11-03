@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-11-03T09:31:07-03:00",
+  "atualizadoEm": "2026-11-03T09:49:11-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -429,10 +429,10 @@
       "categoria": "livros",
       "nome": "Mulheres Improváveis",
       "descricao": "",
-      "precoCentavos": 10000,
+      "precoCentavos": 4000,
       "imagem": "img/produtos/mulheres-improvaveis-mw0ndar4-mw0nr9f7.webp",
       "miniatura": "img/produtos/mulheres-improvaveis-mw0ndar4-mw0nr9f7-mini.webp",
-      "visivel": false,
+      "visivel": true,
       "ordem": 160
     },
     {
@@ -484,10 +484,10 @@
       "categoria": "livros",
       "nome": "Mentes Tranquilas, Almas Felizes",
       "descricao": "",
-      "precoCentavos": 10000,
+      "precoCentavos": 3500,
       "imagem": "img/produtos/mentes-tranquilas-almas-felizes-mw0nne2h-mw0nrpl8.webp",
       "miniatura": "img/produtos/mentes-tranquilas-almas-felizes-mw0nne2h-mw0nrpl8-mini.webp",
-      "visivel": false,
+      "visivel": true,
       "ordem": 210
     },
     {
