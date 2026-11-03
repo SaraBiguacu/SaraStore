@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-11-03T09:21:45-03:00",
+  "atualizadoEm": "2026-11-03T09:31:07-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -496,10 +496,21 @@
       "nome": "A Urgente Necessidade de Avivamento",
       "descricao": "",
       "precoCentavos": 1500,
-      "imagem": "",
-      "miniatura": "",
+      "imagem": "img/produtos/a-urgente-necessidade-de-avivamento-mw0nq4me-mw0o2ele.webp",
+      "miniatura": "img/produtos/a-urgente-necessidade-de-avivamento-mw0nq4me-mw0o2ele-mini.webp",
       "visivel": true,
       "ordem": 220
+    },
+    {
+      "id": "ego-transformado-mw0o1gid",
+      "categoria": "livros",
+      "nome": "Ego Transformado",
+      "descricao": "",
+      "precoCentavos": 1000,
+      "imagem": "img/produtos/ego-transformado-mw0o1gid-mw0o2g79.webp",
+      "miniatura": "img/produtos/ego-transformado-mw0o1gid-mw0o2g79-mini.webp",
+      "visivel": true,
+      "ordem": 230
     }
   ]
 }
