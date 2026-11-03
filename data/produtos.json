@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizadoEm": "2026-10-26T10:19:20-03:00",
+  "atualizadoEm": "2026-11-03T09:21:45-03:00",
   "categorias": [
     {
       "id": "camisetas",
@@ -309,8 +309,8 @@
       "nome": "Bíblia",
       "descricao": "",
       "precoCentavos": 4000,
-      "imagem": "img/produtos/biblia-mvljprfh-mvlk4774.webp",
-      "miniatura": "img/produtos/biblia-mvljprfh-mvlk4774-mini.webp",
+      "imagem": "img/produtos/biblia-mvljprfh-mw0nqcq7.webp",
+      "miniatura": "img/produtos/biblia-mvljprfh-mw0nqcq7-mini.webp",
       "visivel": true,
       "ordem": 90
     },
@@ -320,8 +320,8 @@
       "nome": "Bíblia Capa Mole",
       "descricao": "",
       "precoCentavos": 3500,
-      "imagem": "img/produtos/biblia-mvljqsm1-mvlk48os.webp",
-      "miniatura": "img/produtos/biblia-mvljqsm1-mvlk48os-mini.webp",
+      "imagem": "img/produtos/biblia-mvljqsm1-mw0nqejz.webp",
+      "miniatura": "img/produtos/biblia-mvljqsm1-mw0nqejz-mini.webp",
       "visivel": true,
       "ordem": 100
     },
@@ -331,8 +331,8 @@
       "nome": "Biblia",
       "descricao": "",
       "precoCentavos": 4000,
-      "imagem": "img/produtos/biblia-mvljs18h-mvlk4alm.webp",
-      "miniatura": "img/produtos/biblia-mvljs18h-mvlk4alm-mini.webp",
+      "imagem": "img/produtos/biblia-mvljs18h-mw0nqhp9.webp",
+      "miniatura": "img/produtos/biblia-mvljs18h-mw0nqhp9-mini.webp",
       "visivel": true,
       "ordem": 110
     },
@@ -342,8 +342,8 @@
       "nome": "Bíblia",
       "descricao": "",
       "precoCentavos": 4000,
-      "imagem": "img/produtos/biblia-mvljsshk-mvlk4ck5.webp",
-      "miniatura": "img/produtos/biblia-mvljsshk-mvlk4ck5-mini.webp",
+      "imagem": "img/produtos/biblia-mvljsshk-mw0nqkrl.webp",
+      "miniatura": "img/produtos/biblia-mvljsshk-mw0nqkrl-mini.webp",
       "visivel": true,
       "ordem": 120
     },
@@ -353,8 +353,8 @@
       "nome": "Bíblia com Capa Mole",
       "descricao": "",
       "precoCentavos": 3500,
-      "imagem": "img/produtos/biblia-mvljtq3t-mvlk4ek0.webp",
-      "miniatura": "img/produtos/biblia-mvljtq3t-mvlk4ek0-mini.webp",
+      "imagem": "img/produtos/biblia-mvljtq3t-mw0nqnui.webp",
+      "miniatura": "img/produtos/biblia-mvljtq3t-mw0nqnui-mini.webp",
       "visivel": true,
       "ordem": 130
     },
@@ -364,19 +364,19 @@
       "nome": "Bíblia com Letra Grande",
       "descricao": "",
       "precoCentavos": 5000,
-      "imagem": "img/produtos/biblia-com-letra-grande-mvlk1v9u-mvlk4gcy.webp",
-      "miniatura": "img/produtos/biblia-com-letra-grande-mvlk1v9u-mvlk4gcy-mini.webp",
+      "imagem": "img/produtos/biblia-com-letra-grande-mvlk1v9u-mw0nqqyl.webp",
+      "miniatura": "img/produtos/biblia-com-letra-grande-mvlk1v9u-mw0nqqyl-mini.webp",
       "visivel": true,
       "ordem": 140
     },
     {
       "id": "biblia-mvlk2qiu",
       "categoria": "biblias",
-      "nome": "Bíblia",
+      "nome": "Bíblia com Letra Grande",
       "descricao": "",
       "precoCentavos": 5000,
-      "imagem": "img/produtos/biblia-mvlk2qiu-mvlk4i96.webp",
-      "miniatura": "img/produtos/biblia-mvlk2qiu-mvlk4i96-mini.webp",
+      "imagem": "img/produtos/biblia-mvlk2qiu-mw0nqu3k.webp",
+      "miniatura": "img/produtos/biblia-mvlk2qiu-mw0nqu3k-mini.webp",
       "visivel": true,
       "ordem": 150
     },
@@ -386,10 +386,120 @@
       "nome": "Bíblia",
       "descricao": "",
       "precoCentavos": 5000,
-      "imagem": "img/produtos/biblia-mvlk328v-mvlk4ke9.webp",
-      "miniatura": "img/produtos/biblia-mvlk328v-mvlk4ke9-mini.webp",
+      "imagem": "img/produtos/biblia-mvlk328v-mw0nqx58.webp",
+      "miniatura": "img/produtos/biblia-mvlk328v-mw0nqx58-mini.webp",
       "visivel": true,
       "ordem": 160
+    },
+    {
+      "id": "biblia-mw0n1v4c",
+      "categoria": "biblias",
+      "nome": "Bíblia",
+      "descricao": "",
+      "precoCentavos": 4000,
+      "imagem": "img/produtos/biblia-mw0n1v4c-mw0nr06m.webp",
+      "miniatura": "img/produtos/biblia-mw0n1v4c-mw0nr06m-mini.webp",
+      "visivel": true,
+      "ordem": 170
+    },
+    {
+      "id": "365-historias-para-ler-o-ouvir-mw0n8yf4",
+      "categoria": "livros",
+      "nome": "365 histórias para ler o ouvir",
+      "descricao": "",
+      "precoCentavos": 2000,
+      "imagem": "img/produtos/365-historias-para-ler-o-ouvir-mw0n8yf4-mw0nr37g.webp",
+      "miniatura": "img/produtos/365-historias-para-ler-o-ouvir-mw0n8yf4-mw0nr37g-mini.webp",
+      "visivel": true,
+      "ordem": 140
+    },
+    {
+      "id": "a-historia-do-avivamento-azusa-mw0nar3h",
+      "categoria": "livros",
+      "nome": "A História do Avivamento Azusa",
+      "descricao": "",
+      "precoCentavos": 3000,
+      "imagem": "img/produtos/a-historia-do-avivamento-azusa-mw0nar3h-mw0nr6gs.webp",
+      "miniatura": "img/produtos/a-historia-do-avivamento-azusa-mw0nar3h-mw0nr6gs-mini.webp",
+      "visivel": true,
+      "ordem": 150
+    },
+    {
+      "id": "mulheres-improvaveis-mw0ndar4",
+      "categoria": "livros",
+      "nome": "Mulheres Improváveis",
+      "descricao": "",
+      "precoCentavos": 10000,
+      "imagem": "img/produtos/mulheres-improvaveis-mw0ndar4-mw0nr9f7.webp",
+      "miniatura": "img/produtos/mulheres-improvaveis-mw0ndar4-mw0nr9f7-mini.webp",
+      "visivel": false,
+      "ordem": 160
+    },
+    {
+      "id": "campo-de-batalha-da-mente-mw0nfv05",
+      "categoria": "livros",
+      "nome": "Campo de Batalha da Mente",
+      "descricao": "",
+      "precoCentavos": 4000,
+      "imagem": "img/produtos/campo-de-batalha-da-mente-mw0nfv05-mw0nrdnm.webp",
+      "miniatura": "img/produtos/campo-de-batalha-da-mente-mw0nfv05-mw0nrdnm-mini.webp",
+      "visivel": true,
+      "ordem": 170
+    },
+    {
+      "id": "o-deus-que-destroi-sonhos-mw0ngugi",
+      "categoria": "livros",
+      "nome": "O Deus que Destrói Sonhos",
+      "descricao": "",
+      "precoCentavos": 4000,
+      "imagem": "img/produtos/o-deus-que-destroi-sonhos-mw0ngugi-mw0nrgfh.webp",
+      "miniatura": "img/produtos/o-deus-que-destroi-sonhos-mw0ngugi-mw0nrgfh-mini.webp",
+      "visivel": true,
+      "ordem": 180
+    },
+    {
+      "id": "ate-que-nada-mais-importe-mw0nihje",
+      "categoria": "livros",
+      "nome": "Até que Nada Mais Importe",
+      "descricao": "",
+      "precoCentavos": 3500,
+      "imagem": "img/produtos/ate-que-nada-mais-importe-mw0nihje-mw0nrjj1.webp",
+      "miniatura": "img/produtos/ate-que-nada-mais-importe-mw0nihje-mw0nrjj1-mini.webp",
+      "visivel": true,
+      "ordem": 190
+    },
+    {
+      "id": "o-peregrino-mw0nk1tn",
+      "categoria": "livros",
+      "nome": "O Peregrino",
+      "descricao": "",
+      "precoCentavos": 4000,
+      "imagem": "img/produtos/o-peregrino-mw0nk1tn-mw0nrmnj.webp",
+      "miniatura": "img/produtos/o-peregrino-mw0nk1tn-mw0nrmnj-mini.webp",
+      "visivel": true,
+      "ordem": 200
+    },
+    {
+      "id": "mentes-tranquilas-almas-felizes-mw0nne2h",
+      "categoria": "livros",
+      "nome": "Mentes Tranquilas, Almas Felizes",
+      "descricao": "",
+      "precoCentavos": 10000,
+      "imagem": "img/produtos/mentes-tranquilas-almas-felizes-mw0nne2h-mw0nrpl8.webp",
+      "miniatura": "img/produtos/mentes-tranquilas-almas-felizes-mw0nne2h-mw0nrpl8-mini.webp",
+      "visivel": false,
+      "ordem": 210
+    },
+    {
+      "id": "a-urgente-necessidade-de-avivamento-mw0nq4me",
+      "categoria": "livros",
+      "nome": "A Urgente Necessidade de Avivamento",
+      "descricao": "",
+      "precoCentavos": 1500,
+      "imagem": "",
+      "miniatura": "",
+      "visivel": true,
+      "ordem": 220
     }
   ]
 }
